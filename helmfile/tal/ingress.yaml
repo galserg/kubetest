@@ -1,0 +1,52 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: ng
+    namespace: nginx
+    chart: ingress-nginx/ingress-nginx
+    version:
+    values:
+      - controller:
+          ingressClassResource:
+            name: nginx
+          ingressClass: nginx
+          hostNetwork: false
+          hostPort:
+            enabled: false
+          config: {}
+          # -- Use a `DaemonSet` or `Deployment`
+          kind: DaemonSet
+          service:
+            annotations: {}
+            enableHttp: true
+            enableHttps: true
+            externalIPs: []
+            loadBalancerIP: {{ .Values.nginx.ip.public }}
+            type: LoadBalancer
+            internal:
+              enabled: false
+          nodeSelector: {}
+          metrics:
+            port: 10254
+            enabled: false
+            service:
+              annotations: {}
+              omitClusterIP: false
+              externalIPs: []
+              loadBalancerIP: ""
+              loadBalancerSourceRanges: []
+              servicePort: 9913
+              type: ClusterIP
+            serviceMonitor:
+              enabled: false
+              additionalLabels: {}
+              namespace: ""
+              namespaceSelector: {}
+              scrapeInterval: 30s
+            prometheusRule:
+              enabled: false
+        defaultBackend:
+          enabled: true

@@ -8,4 +8,10 @@ variable "matchbox_rpc_endpoint" {
   description = "Matchbox gRPC API endpoint, without the protocol (e.g. matchbox.example.com:8081)"
 }
 
+variable "masters_list" {
+  description = "Masters list"
+}
 
+variable "workers_list" {
+  description = "Workers list"
+}

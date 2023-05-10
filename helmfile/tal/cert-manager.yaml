@@ -1,0 +1,15 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: cm
+    namespace: cert-manager
+    version:
+    chart: jetstack/cert-manager
+    values:
+      - installCRDs: true
+        nodeSelector:
+          cloud.google.com/gke-nodepool: "app-pool"
+

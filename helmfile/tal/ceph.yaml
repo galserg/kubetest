@@ -1,0 +1,18 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: mayastor
+    namespace: mayastor
+    chart: mayastor/mayastor
+    version: 2.0.1
+    values:
+      - etcd:
+          replicaCount: 1
+          persistence:
+            enabled: true
+            storageClass: "manual"
+        loki-stack:
+          enabled: false

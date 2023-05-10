@@ -25,12 +25,12 @@ services:
       - --dhcp-boot=tag:ipxe,http://192.168.2.100:8080/boot.ipxe
       - --log-queries
       - --log-dhcp
-      - --dhcp-host=12:2a:01:45:7b:51:192.168.3.101
-      - --dhcp-host=12:2f:a3:e2:2b:c2:192.168.3.102
-      - --dhcp-host=12:8d:e0:b1:40:58:192.168.3.103
-      - --dhcp-host=12:27:b3:fc:30:b7:192.168.3.111
-      - --dhcp-host=12:93:49:d7:5f:c4:192.168.3.112
-      - --dhcp-host=12:5a:58:55:bc:27:192.168.3.113
+      - --dhcp-host=12:2a:01:45:7b:51,192.168.3.101
+      - --dhcp-host=12:2f:a3:e2:2b:c2,192.168.3.102
+      - --dhcp-host=12:8d:e0:b1:40:58,192.168.3.103
+      - --dhcp-host=12:27:b3:fc:30:b7,192.168.3.111
+      - --dhcp-host=12:93:49:d7:5f:c4,192.168.3.112
+      - --dhcp-host=12:5a:58:55:bc:27,192.168.3.113
   matchbox:
     restart: always
     image: quay.io/poseidon/matchbox:v0.10.0

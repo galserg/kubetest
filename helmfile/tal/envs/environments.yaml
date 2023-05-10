@@ -1,0 +1,41 @@
+---
+environments:
+  test:
+    values:
+    - envs/base.yaml
+    - envs/test.yaml
+
+
+---
+repositories:
+- name: loki
+  url: https://grafana.github.io/loki/charts
+- name: jetstack
+  url: https://charts.jetstack.io
+- name: kubernetes-dashboard
+  url: https://kubernetes.github.io/dashboard
+- name: ingress-nginx
+  url: https://kubernetes.github.io/ingress-nginx
+- name: gitlab
+  url: https://charts.gitlab.io
+- name: bitnami
+  url: https://charts.bitnami.com/bitnami
+- name: prometheus-community
+  url: https://prometheus-community.github.io/helm-charts
+- name: harbor
+  url: https://helm.goharbor.io
+- name: metallb
+  url: https://metallb.github.io/metallb
+- name: speedtest
+  url: https://openspeedtest.github.io/Helm-chart/
+- name: akhq
+  url: https://akhq.io/
+- name: mayastor
+  url: https://openebs.github.io/mayastor-extensions/
+- name: cilium
+  url: https://helm.cilium.io/
+---
+
+---
+helmDefaults:
+  timeout: 600

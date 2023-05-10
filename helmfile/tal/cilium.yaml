@@ -1,0 +1,23 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: cilium
+    namespace: kube-system
+    chart: cilium/cilium
+    version:
+    values:
+      - k8sServiceHost: {{ .Values.cluster.vip }}
+        k8sServicePort: 6443
+        cluster:
+          name: {{ .Values.cluster.name }}
+          id: {{ .Values.cluster.id }}
+        ipam:
+          mode: kubernetes
+        kubeProxyReplacement: strict
+        securityContext:
+          privileged: true
+
+

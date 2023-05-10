@@ -5,10 +5,26 @@ provider "proxmox" {
   pm_tls_insecure = true
 }
 
+provider "matchbox" {
+  endpoint    = var.matchbox_rpc_endpoint
+  client_cert = file("../matchbox/client.crt")
+  client_key  = file("../matchbox/client.key")
+  ca          = file("../matchbox/ca.crt")
+}
+
 terraform {
   required_providers {
     proxmox = {
       source  = "telmate/proxmox"
+    }
+
+    ct = {
+      source  = "poseidon/ct"
+      version = "0.11.0"
+    }
+    matchbox = {
+      source  = "poseidon/matchbox"
+      version = "0.5.2"
     }
   }
 }

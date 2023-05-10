@@ -1,0 +1,38 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: metallb
+    namespace: metallb-system
+    chart: metallb/metallb
+    version:
+    values:
+      - loadBalancerClass: ""
+        prometheus:
+          rbacPrometheus: false
+          serviceMonitor:
+            enabled: false
+        prometheusRule:
+          enabled: false
+        controller:
+          enabled: true
+          resources: {}
+          # limits:
+            # cpu: 100m
+            # memory: 100Mi
+          nodeSelector: {}
+          tolerations: []
+        speaker:
+          enabled: true
+          resources: {}
+          # limits:
+            # cpu: 100m
+            # memory: 100Mi
+          nodeSelector: {}
+          tolerations: []
+          frr:
+            enabled: false
+        crds:
+          enabled: true

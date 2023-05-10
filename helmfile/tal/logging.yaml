@@ -1,0 +1,33 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: lk
+    namespace: monitoring
+    chart: loki/loki
+    version:
+    values:
+      - config:
+          table_manager:
+            retention_deletes_enabled: true
+            retention_period: 336h
+        persistence:
+          enabled: false
+          size: 20Gi
+          storageClassName: disks
+
+  - name: pt
+    namespace: monitoring
+    chart: loki/promtail
+    version:
+    values:
+      - loki:
+          serviceName: "lk-loki"
+        config:
+          client:
+            external_labels:
+              cluster: {{ .Values.cluster.name }}
+
+

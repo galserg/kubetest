@@ -1,0 +1,142 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: lk
+    namespace: monitoring
+    chart: loki/loki
+    version:
+    values:
+      - config:
+          table_manager:
+            retention_deletes_enabled: true
+            retention_period: 1512h
+        nodeSelector:
+          cloud.google.com/gke-nodepool: "data-pool"
+        persistence:
+          enabled: true
+          size: 20Gi
+          storageClassName: standard
+
+  - name: pt
+    namespace: monitoring
+    chart: loki/promtail
+    version:
+    values:
+      - loki:
+          serviceName: "lk-loki"
+        config:
+          client:
+            external_labels:
+              cluster: {{ .Values.cluster.name }}
+
+  - name: po
+    namespace: monitoring
+    chart: prometheus-community/kube-prometheus-stack
+    version:
+    values:
+      - alertmanager:
+          config:
+            global:
+              resolve_timeout: 5m
+            route:
+              group_by: [job, alertname, app]
+              group_wait: 30s
+              group_interval: 5m
+              repeat_interval: 1h
+              receiver: 'null'
+              routes:
+                - match:
+                    alertname: Watchdog
+                  receiver: 'null'
+            receivers:
+              - name: 'null'
+          ingress:
+            enabled: false
+            annotations:
+              kubernetes.io/tls-acme: "false"
+              kubernetes.io/ingress.class: nginx
+            hosts:
+              - alertmanager
+            paths:
+              - /
+            pathType: ImplementationSpecific
+        grafana:
+          adminPassword: q1w2e3r4
+          ingress:
+            enabled: true
+            annotations:
+              kubernetes.io/tls-acme: "true"
+              cert-manager.io/cluster-issuer: "letsencrypt-prod"
+              kubernetes.io/ingress.class: nginx
+            hosts:
+              - grafana.{{ .Values.nginx.domain.public }}
+            paths:
+              - /
+            pathType: ImplementationSpecific
+            tls:
+              - secretName: grafana.{{ .Values.nginx.domain.public }}-tls
+                hosts:
+                  - grafana.{{ .Values.nginx.domain.public }}
+          sidecar:
+            dashboards:
+              enabled: true
+              label: grafana_dashboard
+            datasources:
+              enabled: true
+              defaultDatasourceEnabled: true
+          additionalDataSources:
+            - name: loki
+              access: proxy
+              type: loki
+              url: http://lk-loki:3100
+              jsonData:
+                maxLines: 1000
+        kubeApiServer:
+          enabled: true
+        kubelet:
+          serviceMonitor:
+            resource: false
+        kubeControllerManager:
+          enabled: false
+        coreDns:
+          enabled: false
+        kubeDns:
+          enabled: true
+        kubeEtcd:
+          enabled: true
+        kubeScheduler:
+          enabled: false
+        kubeProxy:
+          enabled: true
+        kubeStateMetrics:
+          enabled: true
+        nodeExporter:
+          enabled: true
+
+        prometheus:
+          ingress:
+            enabled: false
+            annotations:
+              kubernetes.io/ingress.class: nginx
+              kubernetes.io/tls-acme: "false"
+            hosts:
+              - prometheus
+            paths:
+              - /
+            pathType: ImplementationSpecific
+          prometheusSpec:
+            nodeSelector:
+              cloud.google.com/gke-nodepool: "data-pool"
+            ruleSelectorNilUsesHelmValues: false
+            serviceMonitorSelectorNilUsesHelmValues: false
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: "standard"
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 20Gi

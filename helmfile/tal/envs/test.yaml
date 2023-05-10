@@ -1,0 +1,27 @@
+project:
+  name: test
+cluster:
+  name: test
+  id: 1
+  vip: 192.168.3.200
+
+nginx:
+  ip:
+    public: 192.168.3.201
+    private:
+  domain:
+    public: test.galuzin.dev
+    private: test.home
+
+monitoring:
+  alertmanager:
+    slack_api_url: https://hooks.slack.com/services/
+    slack_channel: monitoring
+    slack_username: test-cluster
+  grafana:
+    adminPassword: q1w2e3r4
+  prometheus:
+    retention: 14d
+    retentionSize: 10GB
+    storage: 16G
+
