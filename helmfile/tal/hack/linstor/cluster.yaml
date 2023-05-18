@@ -1,0 +1,8 @@
+apiVersion: piraeus.io/v1
+kind: LinstorCluster
+metadata:
+  name: linstorcluster
+  namespace: piraeus-datastore
+spec:
+  nodeSelector:
+    piraeus: "true"

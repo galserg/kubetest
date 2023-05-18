@@ -10,7 +10,7 @@ releases:
     version: 2.0.1
     values:
       - etcd:
-          replicaCount: 1
+          replicaCount: 3
           persistence:
             enabled: true
             storageClass: "manual"

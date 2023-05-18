@@ -1,0 +1,21 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: piraeus-vdc-1
+provisioner: linstor.csi.linbit.com
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  linstor.csi.linbit.com/storagePool: vdc-pool
+
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: piraeus-vdc-3
+provisioner: linstor.csi.linbit.com
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  linstor.csi.linbit.com/storagePool: vdc-pool
+  linstor.csi.linbit.com/placementCount: "3"

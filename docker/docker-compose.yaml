@@ -8,9 +8,9 @@ services:
       - NET_ADMIN
     command:
       - -d
-      - --dhcp-range=192.168.2.101,192.168.2.150
+      - --dhcp-range=192.168.3.101,192.168.3.150
       - --dhcp-option=1,255.255.255.0
-      - --dhcp-option=3,192.168.2.1
+      - --dhcp-option=3,192.168.3.1
       - --enable-tftp
       - --tftp-root=/var/lib/tftpboot
       - --dhcp-match=set:bios,option:client-arch,0
@@ -22,7 +22,7 @@ services:
       - --dhcp-match=set:efi64,option:client-arch,9
       - --dhcp-boot=tag:efi64,ipxe.efi
       - --dhcp-userclass=set:ipxe,iPXE
-      - --dhcp-boot=tag:ipxe,http://192.168.2.100:8080/boot.ipxe
+      - --dhcp-boot=tag:ipxe,http://192.168.3.100:8080/boot.ipxe
       - --log-queries
       - --log-dhcp
       - --dhcp-host=12:2a:01:45:7b:51,192.168.3.101

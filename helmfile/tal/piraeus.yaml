@@ -1,0 +1,13 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: piraeus-operator
+    namespace: piraeus-datastore
+    chart: ../charts/piraeus
+    version:
+    values:
+      - installCRDs: true
+

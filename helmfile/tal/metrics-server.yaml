@@ -1,0 +1,14 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: metrics-server
+    namespace: metrics-server
+    chart: metrics-server/metrics-server
+    version:
+    values:
+      - args:
+          - --kubelet-insecure-tls
+

@@ -9,6 +9,7 @@ resource "proxmox_vm_qemu" "masters" {
     memory                    = 4096
     cores                     = 2
     scsihw                    = "virtio-scsi-pci"
+    qemu_os                   = "l26"
     network {
         bridge    = "vmbr0"
         firewall  = false
@@ -36,6 +37,7 @@ resource "proxmox_vm_qemu" "workers" {
     memory                    = 16384
     cores                     = 4
     scsihw                    = "virtio-scsi-pci"
+    qemu_os                   = "l26"
     network {
         bridge    = "vmbr0"
         firewall  = false
@@ -54,6 +56,13 @@ resource "proxmox_vm_qemu" "workers" {
         type = "virtio"
         storage = "local-lvm"
         slot = 1
+        size = "48G"
+        cache = "none"
+    }
+    disk {
+        type = "virtio"
+        storage = "local-lvm"
+        slot = 2
         size = "48G"
         cache = "none"
     }
