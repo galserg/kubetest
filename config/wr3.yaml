@@ -18,10 +18,10 @@ machine:
 
     # Used to provide additional options to the kubelet.
     kubelet:
-        image: ghcr.io/siderolabs/kubelet:v1.26.2 # The `image` field is an optional reference to an alternative kubelet image.
+        image: ghcr.io/siderolabs/kubelet:v1.27.2 # The `image` field is an optional reference to an alternative kubelet image.
         # The `extraArgs` field is used to provide additional flags to the kubelet.
         extraArgs:
-            node-labels: openebs.io/engine=mayastor
+            node-labels: kubernetes.io/csi=linstor
         defaultRuntimeSeccompProfileEnabled: true # Enable container runtime default Seccomp profile.
         disableManifestsDirectory: true # The `disableManifestsDirectory` field configures the kubelet to get static pod manifests from the /etc/kubernetes/manifests directory.
         
@@ -64,7 +64,6 @@ machine:
               routes:
                 - network: 0.0.0.0/0 # The route's network (destination).
                   gateway: 192.168.3.1 # The route's gateway (if empty, creates link scope route).
-              mtu: 0 # The interface's MTU.
               dhcp: false # Indicates if DHCP should be used to configure the interface.
               
               # # Picks a network device using the selector.
@@ -76,6 +75,11 @@ machine:
               # deviceSelector:
               #     hardwareAddr: '*:f0:ab' # Device hardware address, supports matching by wildcard.
               #     driver: virtio # Kernel driver, supports matching by wildcard.
+              # # select a device with bus prefix 00:*, a device with mac address matching `*:f0:ab` and `virtio` kernel driver.
+              # deviceSelector:
+              #     - busPath: 00:* # PCI, USB bus prefix, supports matching by wildcard.
+              #     - hardwareAddr: '*:f0:ab' # Device hardware address, supports matching by wildcard.
+              #       driver: virtio # Kernel driver, supports matching by wildcard.
 
               # # Bond specific options.
               # bond:
@@ -83,6 +87,11 @@ machine:
               #     interfaces:
               #         - eth0
               #         - eth1
+              #     # Picks a network device using the selector.
+              #     deviceSelectors:
+              #         - busPath: 00:* # PCI, USB bus prefix, supports matching by wildcard.
+              #         - hardwareAddr: '*:f0:ab' # Device hardware address, supports matching by wildcard.
+              #           driver: virtio # Kernel driver, supports matching by wildcard.
               #     mode: 802.3ad # A bond option.
               #     lacpRate: fast # A bond option.
 
@@ -119,7 +128,7 @@ machine:
               #     # Specifies a list of peer configurations to apply to a device.
               #     peers:
               #         - publicKey: ABCDEF... # Specifies the public key of this peer.
-              #           endpoint: 192.168.1.2 # Specifies the endpoint of this peer entry.
+              #           endpoint: 192.168.1.2:51822 # Specifies the endpoint of this peer entry.
               #           persistentKeepaliveInterval: 10s # Specifies the persistent keepalive interval for this peer.
               #           # AllowedIPs specifies a list of allowed IP addresses in CIDR notation for this peer.
               #           allowedIPs:
@@ -146,10 +155,26 @@ machine:
         # # Configures KubeSpan feature.
         # kubespan:
         #     enabled: true # Enable the KubeSpan feature.
+    # Used to partition, format and mount additional disks.
+    disks:
+        - device: /dev/vdb # The name of the disk to use.
+          # A list of partitions to create on the disk.
+          partitions:
+            - mountpoint: /data # Where to mount the partition.
+              
+              # # The size of partition: either bytes or human readable representation. If `size:` is omitted, the partition is sized to occupy the full disk.
+
+              # # Human readable representation.
+              # size: 100 MB
+              # # Precise value in bytes.
+              # size: 1073741824
     # Used to provide instructions for installations.
     install:
-        disk: /dev/sda # The disk used for installations.
-        image: ghcr.io/siderolabs/installer:v1.3.6 # Allows for supplying the image used to perform the installation.
+        disk: /dev/vda # The disk used for installations.
+        image: ghcr.io/siderolabs/installer:v1.4.5 # Allows for supplying the image used to perform the installation.
+        # Allows for supplying additional system extension images to install on top of base Talos image.
+        extensions:
+            - image: ghcr.io/siderolabs/drbd:9.2.2-v1.4.5 # System extension image.
         bootloader: true # Indicates if a bootloader should be installed.
         wipe: false # Indicates if the installation disk should be wiped at installation time.
         
@@ -163,16 +188,9 @@ machine:
         # extraKernelArgs:
         #     - talos.platform=metal
         #     - reboot=k
-
-        # # Allows for supplying additional system extension images to install on top of base Talos image.
-        # extensions:
-        #     - image: ghcr.io/siderolabs/gvisor:20220117.0-v1.0.0 # System extension image.
-    # Used to configure the machine's sysctls.
-    sysctls:
-        vm.nr_hugepages: "1024"
     # Used to configure the machine's container image registry mirrors.
     registries: {}
-    # # Specifies mirror configuration for each registry.
+    # # Specifies mirror configuration for each registry host namespace.
     # mirrors:
     #     ghcr.io:
     #         # List of endpoints (URLs) for registry mirrors to use.
@@ -212,6 +230,15 @@ machine:
         #     # The list of Kubernetes namespaces Talos API access is available from.
         #     allowedKubernetesNamespaces:
         #         - kube-system
+    # Configures the kernel.
+    kernel:
+        # Kernel modules to load.
+        modules:
+            - name: drbd # Module name.
+              # Module parameters, changes applied after reboot.
+              parameters:
+                - usermode_helper=disabled
+            - name: drbd_transport_tcp # Module name.
     
     # # Provides machine specific control plane configuration options.
 
@@ -236,22 +263,6 @@ machine:
     #         containers:
     #             - image: nginx
     #               name: nginx
-
-    # # Used to partition, format and mount additional disks.
-
-    # # MachineDisks list example.
-    # disks:
-    #     - device: /dev/sdb # The name of the disk to use.
-    #       # A list of partitions to create on the disk.
-    #       partitions:
-    #         - mountpoint: /var/mnt/extra # Where to mount the partition.
-    #           
-    #           # # The size of partition: either bytes or human readable representation. If `size:` is omitted, the partition is sized to occupy the full disk.
-
-    #           # # Human readable representation.
-    #           # size: 100 MB
-    #           # # Precise value in bytes.
-    #           # size: 1073741824
 
     # # Allows the addition of user specified files.
 
@@ -284,6 +295,13 @@ machine:
     #     servers:
     #         - time.cloudflare.com
     #     bootTimeout: 2m0s # Specifies the timeout when the node time is considered to be in sync unlocking the boot sequence.
+
+    # # Used to configure the machine's sysctls.
+
+    # # MachineSysctls usage example.
+    # sysctls:
+    #     kernel.domainname: talos.dev
+    #     net.ipv4.ip_forward: "0"
 
     # # Used to configure the machine's sysfs.
 
@@ -326,12 +344,6 @@ machine:
     #         - endpoint: tcp://1.2.3.4:12345 # Where to send logs. Supported protocols are "tcp" and "udp".
     #           format: json_lines # Logs format.
 
-    # # Configures the kernel.
-    # kernel:
-    #     # Kernel modules to load.
-    #     modules:
-    #         - name: brtfs # Module name.
-
     # # Configures the seccomp profiles for the machine.
     # seccompProfiles:
     #     - name: audit.json # The `name` field is used to provide the file name of the seccomp profile.
@@ -373,7 +385,7 @@ cluster:
         disabled: true # Disable kube-proxy deployment on cluster bootstrap.
         
         # # The container image used in the kube-proxy manifest.
-        # image: registry.k8s.io/kube-proxy:v1.26.2
+        # image: registry.k8s.io/kube-proxy:v1.27.2
     # Configures cluster member discovery.
     discovery:
         enabled: true # Enable the cluster membership discovery feature.
@@ -387,6 +399,11 @@ cluster:
             # # External service endpoint.
             # endpoint: https://discovery.talos.dev/
     
+    # # A key used for the [encryption of secret data at rest](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/).
+
+    # # Decryption secret example (do not use in production!).
+    # aescbcEncryptionSecret: z01mye6j16bspJYtTB/5SFX8j7Ph4JXxM2Xuu4vsBPM=
+
     # # A key used for the [encryption of secret data at rest](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/).
 
     # # Decryption secret example (do not use in production!).
@@ -407,7 +424,7 @@ cluster:
 
     # # API server specific configuration options.
     # apiServer:
-    #     image: registry.k8s.io/kube-apiserver:v1.26.2 # The container image used in the API server manifest.
+    #     image: registry.k8s.io/kube-apiserver:v1.27.2 # The container image used in the API server manifest.
     #     # Extra arguments to supply to the API server.
     #     extraArgs:
     #         feature-gates: ServerSideApply=true
@@ -444,21 +461,21 @@ cluster:
 
     # # Controller manager server specific configuration options.
     # controllerManager:
-    #     image: registry.k8s.io/kube-controller-manager:v1.26.2 # The container image used in the controller manager manifest.
+    #     image: registry.k8s.io/kube-controller-manager:v1.27.2 # The container image used in the controller manager manifest.
     #     # Extra arguments to supply to the controller manager.
     #     extraArgs:
     #         feature-gates: ServerSideApply=true
 
     # # Scheduler server specific configuration options.
     # scheduler:
-    #     image: registry.k8s.io/kube-scheduler:v1.26.2 # The container image used in the scheduler manifest.
+    #     image: registry.k8s.io/kube-scheduler:v1.27.2 # The container image used in the scheduler manifest.
     #     # Extra arguments to supply to the scheduler.
     #     extraArgs:
     #         feature-gates: AllBeta=true
 
     # # Etcd specific configuration options.
     # etcd:
-    #     image: gcr.io/etcd-development/etcd:v3.5.7 # The container image used to create the etcd service.
+    #     image: gcr.io/etcd-development/etcd:v3.5.9 # The container image used to create the etcd service.
     #     # The `ca` is the root certificate authority of the PKI.
     #     ca:
     #         crt: LS0tIEVYQU1QTEUgQ0VSVElGSUNBVEUgLS0t
@@ -472,7 +489,7 @@ cluster:
 
     # # Core DNS specific configuration options.
     # coreDNS:
-    #     image: docker.io/coredns/coredns:1.10.0 # The `image` field is an override to the default coredns image.
+    #     image: docker.io/coredns/coredns:1.10.1 # The `image` field is an override to the default coredns image.
 
     # # External cloud provider configuration.
     # externalCloudProvider:

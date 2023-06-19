@@ -132,7 +132,7 @@ releases:
             storageSpec:
               volumeClaimTemplate:
                 spec:
-                  storageClassName: "mayastor-3"
+                  storageClassName: "piraeus-vdc-3"
                   accessModes: ["ReadWriteOnce"]
                   resources:
                     requests:

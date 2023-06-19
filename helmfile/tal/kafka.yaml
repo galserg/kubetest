@@ -1,0 +1,14 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: ko
+    namespace: kafka
+    chart: strimzi/strimzi-kafka-operator
+    version:
+    values:
+      - nodeSelector:
+          piraeus: "true"
+

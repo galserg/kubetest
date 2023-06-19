@@ -1,6 +1,7 @@
 resource "proxmox_vm_qemu" "masters" {
     for_each = var.masters_list
     name                      = each.key
+    vmid                        = each.value.id
     agent                     = 0
     boot                      = "order=virtio0;net0"
     onboot                    = true
@@ -19,9 +20,9 @@ resource "proxmox_vm_qemu" "masters" {
     }
     disk {
         type = "virtio"
-        storage = "ssd"
+        storage = each.value.system_storage
         slot = 0
-        size = "32G"
+        size = each.value.system_size
         cache = "none"
     }
 }
@@ -29,6 +30,7 @@ resource "proxmox_vm_qemu" "masters" {
 resource "proxmox_vm_qemu" "workers" {
     for_each = var.workers_list
     name                      = each.key
+    vmid                        = each.value.id
     agent                     = 0
     boot                      = "order=virtio0;net0"
     onboot                    = true
@@ -47,23 +49,23 @@ resource "proxmox_vm_qemu" "workers" {
     }
     disk {
         type = "virtio"
-        storage = "ssd"
+        storage = each.value.system_storage
         slot = 0
-        size = "32G"
+        size = each.value.system_size
         cache = "none"
     }
     disk {
         type = "virtio"
-        storage = "local-lvm"
+        storage = each.value.local_storage
         slot = 1
-        size = "48G"
+        size = each.value.local_size
         cache = "none"
     }
     disk {
         type = "virtio"
-        storage = "local-lvm"
+        storage = each.value.data_storage
         slot = 2
-        size = "48G"
+        size = each.value.data_size
         cache = "none"
     }
 }

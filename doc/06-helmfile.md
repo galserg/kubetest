@@ -15,6 +15,7 @@ kubectl label ns mayastor pod-security.kubernetes.io/enforce=privileged pod-secu
 helmfile -e test -f mayastor.yaml apply
 
 kubectl create ns monitoring
+kubectl label ns monitoring pod-security.kubernetes.io/enforce=privileged pod-security.kubernetes.io/audit=privileged pod-security.kubernetes.io/warn=privileged
 helm install po prometheus-community/kube-prometheus-stack -n monitoring
 helmfile -e test -f monitoring.yaml apply
 

@@ -1,0 +1,32 @@
+---
+bases:
+  - envs/environments-full.yaml
+
+---
+releases:
+  - name: kaui
+    namespace: kafka
+    chart: akhq/akhq
+    version:
+    values:
+      - existingSecrets: ""
+        secrets:
+          akhq:
+            connections:
+              dev-clustert:
+                properties:
+                  bootstrap.servers: livecasino-kafka-1.livecasino:9092
+                schema-registry:
+                  url: http://schema-reg-external-app.livecasino:8080
+                  type: "confluent"
+                connect:
+                  - name: "dev-connect"
+                    url: http://livecasino-kafka-connect.livecasino:8083
+        ingress:
+          enabled: true
+          ingressClassName: "nginx"
+          annotations: {}
+          paths:
+            - /
+          hosts:
+            - akhq.dev-stakelogic.com

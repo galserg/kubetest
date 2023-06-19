@@ -64,6 +64,18 @@ Disk stats (read/write):
   sdb: ios=724056/723798, merge=0/12, ticks=3397437/4206001, in_queue=7603511, util=99.89%
 ```
 
+## Ceph on Prozmox
+
+```
+Run status group 0 (all jobs):
+   READ: bw=20.2MiB/s (21.2MB/s), 2573KiB/s-2612KiB/s (2634kB/s-2675kB/s), io=1213MiB (1272MB), run=60013-60018msec
+  WRITE: bw=20.2MiB/s (21.2MB/s), 2580KiB/s-2593KiB/s (2641kB/s-2655kB/s), io=1212MiB (1271MB), run=60013-60018msec
+
+Disk stats (read/write):
+  sdc: ios=310094/309668, merge=0/21, ticks=1434567/6150347, in_queue=7587414, util=99.97%
+
+```
+
 ## Mayastor
 
 ```
@@ -116,4 +128,57 @@ Disk stats (read/write):
     drbd1000: ios=970241/971004, merge=0/0, ticks=666300/5294412, in_queue=5960712, util=99.54%, aggrios=970829/971570, aggrmerge=0/0, aggrticks=662432/112636, aggrin_queue=775068, aggrutil=98.41%
     dm-0: ios=970829/971570, merge=0/0, ticks=662432/112636, in_queue=775068, util=98.41%, aggrios=970829/971551, aggrmerge=0/19, aggrticks=660074/114273, aggrin_queue=774446, aggrutil=98.41%
   vdc: ios=970829/971551, merge=0/19, ticks=660074/114273, in_queue=774446, util=98.41%
+```
+
+
+## Опыты с хостовой машины
+
+```
+--------------------
+pcie card with nvme
+--------------------
+
+fio --name=benchtest \
+    --size=800m \
+    --filename=/mnt/test.fio \
+    --direct=1 \
+    --rw=randrw \
+    --ioengine=libaio \
+    --bs=4k \
+    --iodepth=16 \
+    --numjobs=8 \
+    --time_based \
+    --runtime=60
+    
+Run status group 0 (all jobs):
+   READ: bw=273MiB/s (287MB/s), 34.2MiB/s-34.2MiB/s (35.8MB/s-35.9MB/s), io=16.0GiB (17.2GB), run=60001-60002msec
+  WRITE: bw=274MiB/s (287MB/s), 34.1MiB/s-34.3MiB/s (35.8MB/s-35.0MB/s), io=16.0GiB (17.2GB), run=60001-60002msec
+
+Disk stats (read/write):
+  nvme1n1: ios=4197187/4199677, merge=0/13, ticks=7307521/262730, in_queue=7570392, util=99.90%
+
+--------------------
+on-board nvme
+--------------------
+
+fio --name=benchtest \
+    --size=800m \
+    --filename=/opt/test.fio \
+    --direct=1 \
+    --rw=randrw \
+    --ioengine=libaio \
+    --bs=4k \
+    --iodepth=16 \
+    --numjobs=8 \
+    --time_based \
+    --runtime=60
+
+Run status group 0 (all jobs):
+   READ: bw=330MiB/s (346MB/s), 41.1MiB/s-41.4MiB/s (43.1MB/s-43.4MB/s), io=19.3GiB (20.8GB), run=60001-60003msec
+  WRITE: bw=330MiB/s (346MB/s), 41.1MiB/s-41.4MiB/s (43.1MB/s-43.5MB/s), io=19.3GiB (20.8GB), run=60001-60003msec
+
+Disk stats (read/write):
+    dm-1: ios=5049831/5052770, merge=0/0, ticks=6286856/1184668, in_queue=7471524, util=99.91%, aggrios=5068725/5071922, aggrmerge=0/63, aggrticks=6317409/1194975, aggrin_queue=7512412, aggrutil=99.77%
+  nvme0n1: ios=5068725/5071922, merge=0/63, ticks=6317409/1194975, in_queue=7512412, util=99.77%
+     
 ```

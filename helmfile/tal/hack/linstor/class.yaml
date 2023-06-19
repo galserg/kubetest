@@ -19,3 +19,4 @@ volumeBindingMode: WaitForFirstConsumer
 parameters:
   linstor.csi.linbit.com/storagePool: vdc-pool
   linstor.csi.linbit.com/placementCount: "3"
+

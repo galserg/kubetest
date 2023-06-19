@@ -1,0 +1,16 @@
+machine:
+  network:
+    interfaces:
+      - interface: eth0
+        dhcp: false
+        addresses:
+          - ${ipaddr}/24
+        vip:
+          ip: 192.168.3.200
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 192.168.3.1
+    hostname: ${hostname}
+    nameservers:
+      - 8.8.8.8
+      - 8.8.4.4

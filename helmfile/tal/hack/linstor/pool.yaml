@@ -10,5 +10,3 @@ spec:
       source:
         hostDevices:
           - /dev/vdc
-
-
