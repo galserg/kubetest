@@ -28,7 +28,6 @@ operator:
     #   memory: 128Mi
 
 kubeRbacProxy:
-  enabled: false
   image:
     repository: gcr.io/kubebuilder/kube-rbac-proxy
     pullPolicy: IfNotPresent

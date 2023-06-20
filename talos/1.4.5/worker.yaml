@@ -21,7 +21,7 @@ machine:
         image: ghcr.io/siderolabs/kubelet:v1.27.2 # The `image` field is an optional reference to an alternative kubelet image.
         # The `extraArgs` field is used to provide additional flags to the kubelet.
         extraArgs:
-            node-labels: custom-csi=linstor
+            node-labels: custom-csi=linstor, openebs.io/engine=mayastor
         defaultRuntimeSeccompProfileEnabled: true # Enable container runtime default Seccomp profile.
         disableManifestsDirectory: true # The `disableManifestsDirectory` field configures the kubelet to get static pod manifests from the /etc/kubernetes/manifests directory.
         
@@ -175,6 +175,9 @@ machine:
         # extraKernelArgs:
         #     - talos.platform=metal
         #     - reboot=k
+    # Used to configure the machine's sysctls.
+    sysctls:
+        vm.nr_hugepages: "1024"
     # Used to configure the machine's container image registry mirrors.
     registries: {}
     # # Specifies mirror configuration for each registry host namespace.
@@ -298,13 +301,6 @@ machine:
     #     servers:
     #         - time.cloudflare.com
     #     bootTimeout: 2m0s # Specifies the timeout when the node time is considered to be in sync unlocking the boot sequence.
-
-    # # Used to configure the machine's sysctls.
-
-    # # MachineSysctls usage example.
-    # sysctls:
-    #     kernel.domainname: talos.dev
-    #     net.ipv4.ip_forward: "0"
 
     # # Used to configure the machine's sysfs.
 

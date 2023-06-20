@@ -11,9 +11,5 @@ releases:
     values:
       - replicaCount: 1
         installCRDs: true
-        operator:
-          options:
-            leaderElect: false
-        podDisruptionBudget:
-          enabled: false
+
 
