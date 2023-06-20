@@ -5,4 +5,4 @@ metadata:
   namespace: piraeus-datastore
 spec:
   nodeSelector:
-    piraeus: "true"
+    custom-csi: "linstor"

@@ -21,7 +21,7 @@ machine:
         image: ghcr.io/siderolabs/kubelet:v1.27.2 # The `image` field is an optional reference to an alternative kubelet image.
         # The `extraArgs` field is used to provide additional flags to the kubelet.
         extraArgs:
-            node-labels: kubernetes.io/csi=linstor
+            node-labels: custom-csi=linstor
         defaultRuntimeSeccompProfileEnabled: true # Enable container runtime default Seccomp profile.
         disableManifestsDirectory: true # The `disableManifestsDirectory` field configures the kubelet to get static pod manifests from the /etc/kubernetes/manifests directory.
         
@@ -155,19 +155,6 @@ machine:
         # # Configures KubeSpan feature.
         # kubespan:
         #     enabled: true # Enable the KubeSpan feature.
-    # Used to partition, format and mount additional disks.
-    disks:
-        - device: /dev/vdb # The name of the disk to use.
-          # A list of partitions to create on the disk.
-          partitions:
-            - mountpoint: /data # Where to mount the partition.
-              
-              # # The size of partition: either bytes or human readable representation. If `size:` is omitted, the partition is sized to occupy the full disk.
-
-              # # Human readable representation.
-              # size: 100 MB
-              # # Precise value in bytes.
-              # size: 1073741824
     # Used to provide instructions for installations.
     install:
         disk: /dev/vda # The disk used for installations.
@@ -263,6 +250,22 @@ machine:
     #         containers:
     #             - image: nginx
     #               name: nginx
+
+    # # Used to partition, format and mount additional disks.
+
+    # # MachineDisks list example.
+    # disks:
+    #     - device: /dev/sdb # The name of the disk to use.
+    #       # A list of partitions to create on the disk.
+    #       partitions:
+    #         - mountpoint: /var/mnt/extra # Where to mount the partition.
+    #           
+    #           # # The size of partition: either bytes or human readable representation. If `size:` is omitted, the partition is sized to occupy the full disk.
+
+    #           # # Human readable representation.
+    #           # size: 100 MB
+    #           # # Precise value in bytes.
+    #           # size: 1073741824
 
     # # Allows the addition of user specified files.
 

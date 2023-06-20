@@ -15,10 +15,6 @@ machine:
   install:
     extensions:
       - image: ghcr.io/siderolabs/drbd:9.2.2-v1.4.5
-  disks:
-    - device: /dev/vdb
-      partitions:
-        - mountpoint: /data
   kernel:
     modules:
       - name: drbd
@@ -27,4 +23,4 @@ machine:
       - name: drbd_transport_tcp
   kubelet:
     extraArgs:
-      node-labels: kubernetes.io/csi=linstor
+      node-labels: custom-csi=linstor

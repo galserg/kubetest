@@ -7,7 +7,7 @@ resource "proxmox_vm_qemu" "masters" {
     onboot                    = true
     pxe                       = true
     target_node               = "pve"
-    memory                    = 4096
+    memory                    = 8192
     cores                     = 2
     scsihw                    = "virtio-scsi-pci"
     qemu_os                   = "l26"

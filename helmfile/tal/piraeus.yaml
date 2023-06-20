@@ -9,5 +9,11 @@ releases:
     chart: ../charts/piraeus
     version:
     values:
-      - installCRDs: true
+      - replicaCount: 1
+        installCRDs: true
+        operator:
+          options:
+            leaderElect: false
+        podDisruptionBudget:
+          enabled: false
 
