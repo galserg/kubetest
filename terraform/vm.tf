@@ -1,12 +1,12 @@
 resource "proxmox_vm_qemu" "masters" {
     for_each = var.masters_list
     name                      = each.key
-    vmid                        = each.value.id
+    vmid                      = each.value.id
     agent                     = 0
     boot                      = "order=virtio0;net0"
     onboot                    = true
     pxe                       = true
-    target_node               = "pve"
+    target_node               = each.value.target_node
     memory                    = 6144
     cores                     = 3
     scsihw                    = "virtio-scsi-pci"
@@ -30,12 +30,12 @@ resource "proxmox_vm_qemu" "masters" {
 resource "proxmox_vm_qemu" "workers" {
     for_each = var.workers_list
     name                      = each.key
-    vmid                        = each.value.id
+    vmid                      = each.value.id
     agent                     = 0
     boot                      = "order=virtio0;net0"
     onboot                    = true
     pxe                       = true
-    target_node               = "pve"
+    target_node               = each.value.target_node
     memory                    = 16384
     cores                     = 8
     scsihw                    = "virtio-scsi-pci"

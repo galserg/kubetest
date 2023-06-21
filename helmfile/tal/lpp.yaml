@@ -1,0 +1,16 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: lpp
+    namespace: lpp
+    chart: ../charts/local-path-provisioner
+    version:
+    values:
+      - replicaCount: 1
+        nodePathMap:
+          - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
+            paths:
+              - /opt/local-path-provisioner

@@ -18,7 +18,7 @@ machine:
 
     # Used to provide additional options to the kubelet.
     kubelet:
-        image: ghcr.io/siderolabs/kubelet:v1.27.1 # The `image` field is an optional reference to an alternative kubelet image.
+        image: ghcr.io/siderolabs/kubelet:v1.26.2 # The `image` field is an optional reference to an alternative kubelet image.
         defaultRuntimeSeccompProfileEnabled: true # Enable container runtime default Seccomp profile.
         disableManifestsDirectory: true # The `disableManifestsDirectory` field configures the kubelet to get static pod manifests from the /etc/kubernetes/manifests directory.
         
@@ -65,6 +65,7 @@ machine:
               routes:
                 - network: 0.0.0.0/0 # The route's network (destination).
                   gateway: 192.168.3.1 # The route's gateway (if empty, creates link scope route).
+              mtu: 0 # The interface's MTU.
               dhcp: false # Indicates if DHCP should be used to configure the interface.
               # Virtual (shared) IP address configuration.
               vip:
@@ -79,11 +80,6 @@ machine:
               # deviceSelector:
               #     hardwareAddr: '*:f0:ab' # Device hardware address, supports matching by wildcard.
               #     driver: virtio # Kernel driver, supports matching by wildcard.
-              # # select a device with bus prefix 00:*, a device with mac address matching `*:f0:ab` and `virtio` kernel driver.
-              # deviceSelector:
-              #     - busPath: 00:* # PCI, USB bus prefix, supports matching by wildcard.
-              #     - hardwareAddr: '*:f0:ab' # Device hardware address, supports matching by wildcard.
-              #       driver: virtio # Kernel driver, supports matching by wildcard.
 
               # # Bond specific options.
               # bond:
@@ -91,11 +87,6 @@ machine:
               #     interfaces:
               #         - eth0
               #         - eth1
-              #     # Picks a network device using the selector.
-              #     deviceSelectors:
-              #         - busPath: 00:* # PCI, USB bus prefix, supports matching by wildcard.
-              #         - hardwareAddr: '*:f0:ab' # Device hardware address, supports matching by wildcard.
-              #           driver: virtio # Kernel driver, supports matching by wildcard.
               #     mode: 802.3ad # A bond option.
               #     lacpRate: fast # A bond option.
 
@@ -132,7 +123,7 @@ machine:
               #     # Specifies a list of peer configurations to apply to a device.
               #     peers:
               #         - publicKey: ABCDEF... # Specifies the public key of this peer.
-              #           endpoint: 192.168.1.2:51822 # Specifies the endpoint of this peer entry.
+              #           endpoint: 192.168.1.2 # Specifies the endpoint of this peer entry.
               #           persistentKeepaliveInterval: 10s # Specifies the persistent keepalive interval for this peer.
               #           # AllowedIPs specifies a list of allowed IP addresses in CIDR notation for this peer.
               #           allowedIPs:
@@ -156,7 +147,7 @@ machine:
     # Used to provide instructions for installations.
     install:
         disk: /dev/vda # The disk used for installations.
-        image: ghcr.io/siderolabs/installer:v1.4.4 # Allows for supplying the image used to perform the installation.
+        image: ghcr.io/siderolabs/installer:v1.3.6 # Allows for supplying the image used to perform the installation.
         bootloader: true # Indicates if a bootloader should be installed.
         wipe: true # Indicates if the installation disk should be wiped at installation time.
         
@@ -176,7 +167,7 @@ machine:
         #     - image: ghcr.io/siderolabs/gvisor:20220117.0-v1.0.0 # System extension image.
     # Used to configure the machine's container image registry mirrors.
     registries: {}
-    # # Specifies mirror configuration for each registry host namespace.
+    # # Specifies mirror configuration for each registry.
     # mirrors:
     #     ghcr.io:
     #         # List of endpoints (URLs) for registry mirrors to use.
@@ -390,7 +381,7 @@ cluster:
         key: LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSUtHeEdYMnc1OUhpWmNRK0Z1cnhacXo3N3dFdXJ6dWxaamk0MGhzR3lvRm1vQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFSnEzUEJJY2UwdnRsbUd2UzJjTXloTU05VkR3SU93c3NveDJnZmJTQjhSVUhvQVNWK0tYSAp6RUl5SnIySG12Y2crY2hibXllSUlWcHFMUWV3cFRKdkt3PT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=
     # API server specific configuration options.
     apiServer:
-        image: registry.k8s.io/kube-apiserver:v1.27.1 # The container image used in the API server manifest.
+        image: registry.k8s.io/kube-apiserver:v1.26.2 # The container image used in the API server manifest.
         # Extra certificate subject alternative names for the API server's certificate.
         certSANs:
             - 192.168.3.200
@@ -422,14 +413,14 @@ cluster:
                 - level: Metadata
     # Controller manager server specific configuration options.
     controllerManager:
-        image: registry.k8s.io/kube-controller-manager:v1.27.1 # The container image used in the controller manager manifest.
+        image: registry.k8s.io/kube-controller-manager:v1.26.2 # The container image used in the controller manager manifest.
     # Kube-proxy server-specific configuration options
     proxy:
         disabled: true # Disable kube-proxy deployment on cluster bootstrap.
-        image: registry.k8s.io/kube-proxy:v1.27.1 # The container image used in the kube-proxy manifest.
+        image: registry.k8s.io/kube-proxy:v1.26.2 # The container image used in the kube-proxy manifest.
     # Scheduler server specific configuration options.
     scheduler:
-        image: registry.k8s.io/kube-scheduler:v1.27.1 # The container image used in the scheduler manifest.
+        image: registry.k8s.io/kube-scheduler:v1.26.2 # The container image used in the scheduler manifest.
     # Configures cluster member discovery.
     discovery:
         enabled: true # Enable the cluster membership discovery feature.
@@ -450,7 +441,7 @@ cluster:
             key: LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSU5ST21naVBYMFNCSXNvM3FESk82ZFFiYWRSVEQ0TnRHd0FhakJwOXdwVnNvQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFTGF4OXZoM05KZTJ3WHJDSW9XWVR5emZ6OVdkZE9xQ0pxbjhhRGJFV1J4d3hmMm40SzU1QwozcVBBNFlKRW8rZ1N6TURiVERjVFk4ellqdmNXd1BHYkFRPT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=
         
         # # The container image used to create the etcd service.
-        # image: gcr.io/etcd-development/etcd:v3.5.8
+        # image: gcr.io/etcd-development/etcd:v3.5.7
 
         # # The `advertisedSubnets` field configures the networks to pick etcd advertised IP from.
         # advertisedSubnets:
@@ -470,14 +461,9 @@ cluster:
     #       	name: ci
 
     
-    # # A key used for the [encryption of secret data at rest](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/).
-
-    # # Decryption secret example (do not use in production!).
-    # aescbcEncryptionSecret: z01mye6j16bspJYtTB/5SFX8j7Ph4JXxM2Xuu4vsBPM=
-
     # # Core DNS specific configuration options.
     # coreDNS:
-    #     image: docker.io/coredns/coredns:1.10.1 # The `image` field is an override to the default coredns image.
+    #     image: docker.io/coredns/coredns:1.10.0 # The `image` field is an override to the default coredns image.
 
     # # External cloud provider configuration.
     # externalCloudProvider:
