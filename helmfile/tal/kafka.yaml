@@ -10,5 +10,6 @@ releases:
     version:
     values:
       - nodeSelector:
-          piraeus: "true"
+          openebs.io/engine: "mayastor"
+
 

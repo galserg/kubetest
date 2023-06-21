@@ -158,7 +158,7 @@ machine:
         disk: /dev/vda # The disk used for installations.
         image: ghcr.io/siderolabs/installer:v1.4.5 # Allows for supplying the image used to perform the installation.
         bootloader: true # Indicates if a bootloader should be installed.
-        wipe: false # Indicates if the installation disk should be wiped at installation time.
+        wipe: true # Indicates if the installation disk should be wiped at installation time.
         
         # # Look up disk using disk attributes like model, size, serial and others.
         # diskSelector:

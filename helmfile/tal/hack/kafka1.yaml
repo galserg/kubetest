@@ -21,7 +21,7 @@ spec:
     storage:
       type: persistent-claim
       size: 16Gi
-      class: "piraeus-vdc-3"
+      class: "mayastor-3"
       deleteClaim: false
     template:
       pod:
@@ -30,10 +30,10 @@ spec:
             requiredDuringSchedulingIgnoredDuringExecution:
               nodeSelectorTerms:
                 - matchExpressions:
-                    - key: piraeus
+                    - key: openebs.io/engine
                       operator: In
                       values:
-                        - "true"
+                        - "mayastor"
     metricsConfig:
       type: jmxPrometheusExporter
       valueFrom:
@@ -45,7 +45,7 @@ spec:
     storage:
       type: persistent-claim
       size: 1Gi
-      class: "piraeus-vdc-3"
+      class: "mayastor-3"
       deleteClaim: false
     template:
       pod:
@@ -54,10 +54,10 @@ spec:
             requiredDuringSchedulingIgnoredDuringExecution:
               nodeSelectorTerms:
                 - matchExpressions:
-                    - key: piraeus
+                    - key: openebs.io/engine
                       operator: In
                       values:
-                        - "true"
+                        - "mayastor"
     metricsConfig:
       type: jmxPrometheusExporter
       valueFrom:

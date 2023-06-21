@@ -21,7 +21,7 @@ machine:
         image: ghcr.io/siderolabs/kubelet:v1.27.2 # The `image` field is an optional reference to an alternative kubelet image.
         # The `extraArgs` field is used to provide additional flags to the kubelet.
         extraArgs:
-            node-labels: custom-csi=linstor, openebs.io/engine=mayastor
+            node-labels: openebs.io/engine=mayastor
         defaultRuntimeSeccompProfileEnabled: true # Enable container runtime default Seccomp profile.
         disableManifestsDirectory: true # The `disableManifestsDirectory` field configures the kubelet to get static pod manifests from the /etc/kubernetes/manifests directory.
         
@@ -155,15 +155,25 @@ machine:
         # # Configures KubeSpan feature.
         # kubespan:
         #     enabled: true # Enable the KubeSpan feature.
+    # Used to partition, format and mount additional disks.
+    disks:
+        - device: /dev/vdb # The name of the disk to use.
+          # A list of partitions to create on the disk.
+          partitions:
+            - mountpoint: /var/mnt/local # Where to mount the partition.
+              
+              # # The size of partition: either bytes or human readable representation. If `size:` is omitted, the partition is sized to occupy the full disk.
+
+              # # Human readable representation.
+              # size: 100 MB
+              # # Precise value in bytes.
+              # size: 1073741824
     # Used to provide instructions for installations.
     install:
         disk: /dev/vda # The disk used for installations.
         image: ghcr.io/siderolabs/installer:v1.4.5 # Allows for supplying the image used to perform the installation.
-        # Allows for supplying additional system extension images to install on top of base Talos image.
-        extensions:
-            - image: ghcr.io/siderolabs/drbd:9.2.2-v1.4.5 # System extension image.
         bootloader: true # Indicates if a bootloader should be installed.
-        wipe: false # Indicates if the installation disk should be wiped at installation time.
+        wipe: true # Indicates if the installation disk should be wiped at installation time.
         
         # # Look up disk using disk attributes like model, size, serial and others.
         # diskSelector:
@@ -175,6 +185,10 @@ machine:
         # extraKernelArgs:
         #     - talos.platform=metal
         #     - reboot=k
+
+        # # Allows for supplying additional system extension images to install on top of base Talos image.
+        # extensions:
+        #     - image: ghcr.io/siderolabs/gvisor:20220117.0-v1.0.0 # System extension image.
     # Used to configure the machine's sysctls.
     sysctls:
         vm.nr_hugepages: "1024"
@@ -220,15 +234,6 @@ machine:
         #     # The list of Kubernetes namespaces Talos API access is available from.
         #     allowedKubernetesNamespaces:
         #         - kube-system
-    # Configures the kernel.
-    kernel:
-        # Kernel modules to load.
-        modules:
-            - name: drbd # Module name.
-              # Module parameters, changes applied after reboot.
-              parameters:
-                - usermode_helper=disabled
-            - name: drbd_transport_tcp # Module name.
     
     # # Provides machine specific control plane configuration options.
 
@@ -253,22 +258,6 @@ machine:
     #         containers:
     #             - image: nginx
     #               name: nginx
-
-    # # Used to partition, format and mount additional disks.
-
-    # # MachineDisks list example.
-    # disks:
-    #     - device: /dev/sdb # The name of the disk to use.
-    #       # A list of partitions to create on the disk.
-    #       partitions:
-    #         - mountpoint: /var/mnt/extra # Where to mount the partition.
-    #           
-    #           # # The size of partition: either bytes or human readable representation. If `size:` is omitted, the partition is sized to occupy the full disk.
-
-    #           # # Human readable representation.
-    #           # size: 100 MB
-    #           # # Precise value in bytes.
-    #           # size: 1073741824
 
     # # Allows the addition of user specified files.
 
@@ -342,6 +331,12 @@ machine:
     #     destinations:
     #         - endpoint: tcp://1.2.3.4:12345 # Where to send logs. Supported protocols are "tcp" and "udp".
     #           format: json_lines # Logs format.
+
+    # # Configures the kernel.
+    # kernel:
+    #     # Kernel modules to load.
+    #     modules:
+    #         - name: brtfs # Module name.
 
     # # Configures the seccomp profiles for the machine.
     # seccompProfiles:
