@@ -7,7 +7,7 @@ releases:
   - name: mayastor
     namespace: mayastor
     chart: mayastor/mayastor
-    version: 2.0.1
+    version: 2.2.0
     values:
       - etcd:
           replicaCount: 3

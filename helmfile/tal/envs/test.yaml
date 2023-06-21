@@ -22,6 +22,6 @@ monitoring:
     adminPassword: q1w2e3r4
   prometheus:
     retention: 14d
-    retentionSize: 10GB
-    storage: 16G
+    retentionSize: 4GB
+    storage: 5G
 

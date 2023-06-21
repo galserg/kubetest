@@ -1,0 +1,28 @@
+machine:
+  network:
+    interfaces:
+      - interface: eth0
+        dhcp: false
+        addresses:
+          - ${ipaddr}/24
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 192.168.3.1
+    hostname: ${hostname}
+    nameservers:
+      - 8.8.8.8
+      - 8.8.4.4
+  install:
+    extensions:
+      - image: ghcr.io/siderolabs/drbd:9.2.2-v1.4.4
+  kernel:
+    modules:
+      - name: drbd
+        parameters:
+          - usermode_helper=disabled
+      - name: drbd_transport_tcp
+  kubelet:
+    extraArgs:
+      node-labels: custom-csi=linstor, openebs.io/engine=mayastor
+  sysctls:
+    vm.nr_hugepages: 1024

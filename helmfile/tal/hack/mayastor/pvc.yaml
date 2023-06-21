@@ -8,4 +8,4 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  storageClassName: mayastor-1
+  storageClassName: mayastor-3
