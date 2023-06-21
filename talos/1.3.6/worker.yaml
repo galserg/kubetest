@@ -148,7 +148,7 @@ machine:
         #     enabled: true # Enable the KubeSpan feature.
     # Used to partition, format and mount additional disks.
     disks:
-        - device: /dev/sdb # The name of the disk to use.
+        - device: /dev/vdb # The name of the disk to use.
           # A list of partitions to create on the disk.
           partitions:
             - mountpoint: /var/mnt/local # Where to mount the partition.

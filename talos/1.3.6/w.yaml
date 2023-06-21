@@ -27,6 +27,6 @@ machine:
   sysctls:
     vm.nr_hugepages: 1024
   disks:
-    - device: /dev/sdb
+    - device: /dev/vdb
       partitions:
         - mountpoint: /var/mnt/local
