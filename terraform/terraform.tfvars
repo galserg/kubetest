@@ -9,7 +9,7 @@ masters_list = {
 }
 
 workers_list = {
-   "wr1" = { id = "104", ipaddr = "192.168.3.111", macaddr = "12:f4:89:89:0a:34", target_node = "pve", system_size = "32G", system_storage = "local-lvm", local_storage = "nvg1", local_size = "32G", data_size = "128G", data_storage = "nvg1"}
-   "wr2" = { id = "105", ipaddr = "192.168.3.112", macaddr = "12:f3:66:30:06:3b", target_node = "pve", system_size = "32G", system_storage = "local-lvm", local_storage = "nvg2", local_size = "32G", data_size = "128G", data_storage = "nvg2"}
-   "wr3" = { id = "106", ipaddr = "192.168.3.113", macaddr = "12:d5:67:aa:b9:5c", target_node = "pve", system_size = "32G", system_storage = "local-lvm", local_storage = "nvg3", local_size = "32G", data_size = "128G", data_storage = "nvg3"}
+   "wr1" = { id = "104", ipaddr = "192.168.3.111", macaddr = "12:f4:89:89:0a:34", target_node = "pve", system_size = "32G", system_storage = "local-lvm", local_storage = "local-lvm", local_size = "32G", data_size = "220G", data_storage = "nvg1"}
+   "wr2" = { id = "105", ipaddr = "192.168.3.112", macaddr = "12:f3:66:30:06:3b", target_node = "pve", system_size = "32G", system_storage = "local-lvm", local_storage = "local-lvm", local_size = "32G", data_size = "220G", data_storage = "nvg2"}
+   "wr3" = { id = "106", ipaddr = "192.168.3.113", macaddr = "12:d5:67:aa:b9:5c", target_node = "pve", system_size = "32G", system_storage = "local-lvm", local_storage = "local-lvm", local_size = "32G", data_size = "220G", data_storage = "nvg3"}
 }

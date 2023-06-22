@@ -8,16 +8,10 @@ environments:
 
 ---
 repositories:
-- name: jetstack
-  url: https://charts.jetstack.io
 - name: ingress-nginx
   url: https://kubernetes.github.io/ingress-nginx
-- name: gitlab
-  url: https://charts.gitlab.io
 - name: bitnami
   url: https://charts.bitnami.com/bitnami
-- name: harbor
-  url: https://helm.goharbor.io
 - name: metallb
   url: https://metallb.github.io/metallb
 - name: speedtest

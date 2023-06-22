@@ -6,7 +6,7 @@ metadata:
   namespace: mayastor
 spec:
   node: wr1
-  disks: ["/dev/vdb"]
+  disks: ["/dev/vdc"]
 
 ---
 apiVersion: "openebs.io/v1alpha1"
@@ -16,7 +16,7 @@ metadata:
   namespace: mayastor
 spec:
   node: wr2
-  disks: ["/dev/vdb"]
+  disks: ["/dev/vdc"]
 
 ---
 apiVersion: "openebs.io/v1alpha1"
@@ -26,4 +26,4 @@ metadata:
   namespace: mayastor
 spec:
   node: wr3
-  disks: ["/dev/vdb"]
+  disks: ["/dev/vdc"]

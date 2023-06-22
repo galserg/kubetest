@@ -20,7 +20,7 @@ spec:
       inter.broker.protocol.version: "3.4"
     storage:
       type: persistent-claim
-      size: 16Gi
+      size: 5Gi
       class: "mayastor-3"
       deleteClaim: false
     template:
