@@ -23,3 +23,14 @@ releases:
           enable: true
           storageClass: mayastor-3
           size: 5Gi
+
+  - name: ta
+    namespace: tc
+    chart: ../charts/teamcity-agent
+    version:
+    values:
+      - replicaCount: 3
+        storage:
+          enable: true
+          storageClass: mayastor-3
+          size: 1Gi
