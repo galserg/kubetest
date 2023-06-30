@@ -1,0 +1,13 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: eo
+    namespace: elastic-system
+    chart: elastic/eck-operator
+    version:
+
+
+

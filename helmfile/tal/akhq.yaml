@@ -1,6 +1,6 @@
 ---
 bases:
-  - envs/environments-full.yaml
+  - envs/environments.yaml
 
 ---
 releases:
@@ -13,15 +13,15 @@ releases:
         secrets:
           akhq:
             connections:
-              dev-clustert:
+              test-clustert:
                 properties:
-                  bootstrap.servers: livecasino-kafka-1.livecasino:9092
+                  bootstrap.servers: kafka1-kafka-bootstrap:9092
                 schema-registry:
-                  url: http://schema-reg-external-app.livecasino:8080
+                  url: http://schema:8080
                   type: "confluent"
                 connect:
                   - name: "dev-connect"
-                    url: http://livecasino-kafka-connect.livecasino:8083
+                    url: http://connect:8083
         ingress:
           enabled: true
           ingressClassName: "nginx"
@@ -29,4 +29,4 @@ releases:
           paths:
             - /
           hosts:
-            - akhq.dev-stakelogic.com
+            - akhq.test.home

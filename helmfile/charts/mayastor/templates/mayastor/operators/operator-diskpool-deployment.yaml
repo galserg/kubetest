@@ -25,8 +25,14 @@ spec:
         {{- include "base_pull_secrets" . }}
       initContainers:
         {{- include "base_init_containers" . }}
+      {{- if $pcName := include "priority_class" (dict "template" . "localPriorityClass" .Values.operators.pool.priorityClassName) }}
+      priorityClassName: {{ $pcName }}
+      {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if $tolerations := include "tolerations" (dict "template" . "localTolerations" .Values.operators.pool.tolerations) }}
+      tolerations: {{ $tolerations }}
       {{- end }}
       containers:
         - name: operator-diskpool
@@ -37,7 +43,7 @@ spec:
             requests:
               cpu: {{ .Values.operators.pool.resources.requests.cpu | quote }}
               memory: {{ .Values.operators.pool.resources.requests.memory | quote }}
-          image: "{{ .Values.image.registry }}/{{ .Values.image.repo }}/{{ .Chart.Name }}-operator-diskpool:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repo }}/{{ .Chart.Name }}-operator-diskpool:{{ default .Values.image.tag .Values.image.repoTags.controlPlane }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - "-e http://{{ .Release.Name }}-api-rest:8081"

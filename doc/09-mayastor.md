@@ -28,3 +28,5 @@ kubectl label ns default pod-security.kubernetes.io/enforce=privileged pod-secur
 kubectl apply -f https://raw.githubusercontent.com/openebs/Mayastor/v1.0.2/deploy/fio.yaml
 kubectl exec -it fio -- fio --name=benchtest --size=800m --filename=/volume/test --direct=1 --rw=randrw --ioengine=libaio --bs=4k --iodepth=16 --numjobs=8 --time_based --runtime=60
 ```
+
+https://mayastor.gitbook.io/

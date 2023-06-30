@@ -1,0 +1,25 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: tc
+    namespace: tc
+    chart: ../charts/teamcity-server
+    version:
+    values:
+      - replicaCount: 1
+        ingress:
+          enabled: true
+          className: "nginx"
+          annotations: {}
+          hosts:
+            - host: tc.test.home
+              paths:
+                - path: /
+                  pathType: ImplementationSpecific
+        storage:
+          enable: true
+          storageClass: mayastor-3
+          size: 5Gi

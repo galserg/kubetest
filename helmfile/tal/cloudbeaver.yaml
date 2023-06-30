@@ -1,0 +1,23 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: cb
+    namespace: cloudbeaver
+    chart: ../charts/cloudbeaver
+    version:
+    values:
+      - replicaCount: 1
+        ingress:
+          enabled: true
+          annotations:
+            kubernetes.io/ingress.class: nginx
+          hosts:
+            - host: cloudbeaver.test.home
+              paths:
+                - path: /
+                  pathType: Prefix
+        storage:
+          capacity: 5G

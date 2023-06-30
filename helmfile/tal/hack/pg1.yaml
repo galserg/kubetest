@@ -1,0 +1,71 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: test-pg
+spec:
+  instances: 3
+  storage:
+    storageClass: mayastor-3
+    size: 5Gi
+  logLevel: trace
+
+  postgresql:
+    parameters:
+      max_connections: '100'
+      shared_buffers: 512MB
+      effective_cache_size: 1536MB
+      maintenance_work_mem: 128MB
+      checkpoint_completion_target: '0.9'
+      wal_buffers: 16MB
+      default_statistics_target: '100'
+      random_page_cost: '1.1'
+      effective_io_concurrency: '200'
+      work_mem: 2621kB
+      min_wal_size: 1GB
+      max_wal_size: 4GB
+
+  bootstrap:
+    initdb:
+      database: test1
+      owner: test1
+      secret:
+        name: test-pg-test1-user
+
+  resources:
+    requests:
+      memory: "2048Mi"
+    limits:
+      hugepages-2Mi: "1024Mi"
+
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+    podAntiAffinityType: required
+
+  backup:
+    barmanObjectStore:
+      destinationPath: gs://test-home-pg/test1
+      googleCredentials:
+        applicationCredentials:
+          name: backup-creds
+          key: gcsCredentials
+      wal:
+        compression: gzip
+        encryption: AES256
+      data:
+        compression: gzip
+        encryption: AES256
+        immediateCheckpoint: false
+        jobs: 2
+    retentionPolicy: "30d"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-pg-test1-user
+data:
+  username: dGVzdDE=
+  password: dGVzdDE=
+type: kubernetes.io/basic-auth

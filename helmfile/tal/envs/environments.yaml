@@ -28,7 +28,10 @@ repositories:
   url: https://prometheus-community.github.io/helm-charts
 - name: strimzi
   url: https://strimzi.io/charts/
-
+- name: cnpg
+  url: https://cloudnative-pg.github.io/charts
+- name: elastic
+  url: https://helm.elastic.co
 ---
 
 ---

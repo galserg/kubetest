@@ -1,0 +1,74 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: etcd-volume-0
+  labels:
+    statefulset.kubernetes.io/pod-name: mayastor-etcd-0
+spec:
+  storageClassName: manual
+  persistentVolumeReclaimPolicy: Delete
+  capacity:
+    storage: "2Gi"
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: "/var/local/mayastor/etcd-local/pod-0"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: etcd-mayastor
+          operator: In
+          values:
+          - "pod-0"
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: etcd-volume-1
+  labels:
+    statefulset.kubernetes.io/pod-name: mayastor-etcd-1
+spec:
+  storageClassName: manual
+  persistentVolumeReclaimPolicy: Delete
+  capacity:
+    storage: "2Gi"
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: "/var/local/mayastor/etcd-local/pod-1"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: etcd-mayastor
+          operator: In
+          values:
+          - "pod-1"
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: etcd-volume-2
+  labels:
+    statefulset.kubernetes.io/pod-name: mayastor-etcd-2
+spec:
+  storageClassName: manual
+  persistentVolumeReclaimPolicy: Delete
+  capacity:
+    storage: "2Gi"
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: "/var/local/mayastor/etcd-local/pod-2"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: etcd-mayastor
+          operator: In
+          values:
+          - "pod-2"

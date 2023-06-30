@@ -4,9 +4,19 @@ image:
   # -- Image registry's namespace
   repo: openebs
   # -- Release tag for our images
-  tag: v2.0.1
+  tag: release-2.3
+  repoTags:
+    # Note: Below image tag configuration is optional and typically should never be
+    #       used. Setting specific image tags for the different repositories proves useful
+    #       for some integration testing scenarios. Use the 'tag' option above to set
+    #       release/pre-release container image tags.
+    #       The below tag values will be picked for images by default.
+    #       If not specified, 'tag' option provided above will be picked.
+    controlPlane: ""
+    dataPlane: ""
+    extensions: ""
   # -- ImagePullPolicy for our images
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 # -- Node labels for pod assignment
 # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
@@ -14,6 +24,12 @@ image:
 # should be removed and set 'nodeSelector' to empty '{}' as default value.
 nodeSelector:
   kubernetes.io/arch: amd64
+
+# -- Pod scheduling priority.
+# Setting this value will apply to all components except the external Chart dependencies.
+# If any component has `priorityClassName` set, then this value would be overridden for that component.
+# For external components like etcd, jaeger or loki-stack, PriorityClass can only be set at component level.
+priorityClassName: ""
 
 earlyEvictionTolerations:
   - effect: NoExecute
@@ -24,6 +40,11 @@ earlyEvictionTolerations:
     key: node.kubernetes.io/not-ready
     operator: Exists
     tolerationSeconds: 5
+
+# -- Tolerations to be applied to all components except external Chart dependencies.
+# If any component has tolerations set, then it would override this value.
+# For external components like etcd, jaeger and loki-stack, tolerations can only be set at component level.
+tolerations: []
 
 base:
   # -- Request timeout for rest & core agents
@@ -101,6 +122,10 @@ operators:
         cpu: "50m"
         # -- Memory requests for diskpool operator
         memory: "16Mi"
+    # -- Set tolerations, overrides global
+    tolerations: []
+    # -- Set PriorityClass, overrides global
+    priorityClassName: ""
 
 jaeger-operator:
   # Name of jaeger operator
@@ -114,11 +139,27 @@ jaeger-operator:
   rbac:
     # Create a clusterRole for Jaeger
     clusterRole: true
+  tolerations: []
+  priorityClassName: ""
 
 agents:
   core:
     # -- Log level for the core service
     logLevel: info
+    capacity:
+      thin:
+        # -- The allowed pool commitment limit when dealing with thin provisioned volumes.
+        # Example: If the commitment is 250 and the pool is 10GiB we can overcommit the pool
+        # up to 25GiB (create 2 10GiB and 1 5GiB volume) but no further.
+        poolCommitment: "250%"
+        # -- When creating replicas for an existing volume, each replica pool must have at least
+        # this much free space percentage of the volume size.
+        # Example: if this value is 40, the pool has 40GiB free, then the max volume size allowed
+        # to be created on the pool is 100GiB.
+        volumeCommitment: "40%"
+        # -- Same as the `volumeCommitment` argument, but applicable only when creating replicas
+        # for a new volume.
+        volumeCommitmentInitial: "40%"
     resources:
       limits:
         # -- Cpu limits for core agents
@@ -130,6 +171,17 @@ agents:
         cpu: "500m"
         # -- Memory requests for core agents
         memory: "32Mi"
+    # -- If a faulted replica comes back online within this time period then it will be
+    # rebuilt using the partial rebuild capability (using a log of missed IO), hence a bit
+    # faster depending on the log size. Otherwise, the replica will be fully rebuilt.
+    # A blank value "" means internally derived value will be used.
+    partialRebuildWaitPeriod: ""
+    # -- Set tolerations, overrides global
+    tolerations: []
+    # -- Set PriorityClass, overrides global.
+    # If both local and global are not set, the final deployment manifest has a mayastor custom critical priority class assigned to the pod by default.
+    # Refer the `templates/_helpers.tpl` and `templates/mayastor/agents/core/agent-core-deployment.yaml` for more details.
+    priorityClassName: ""
   ha:
     enabled: true
     node:
@@ -146,6 +198,10 @@ agents:
           cpu: "100m"
           # -- Memory requests for ha node agent
           memory: "64Mi"
+      # -- Set tolerations, overrides global
+      tolerations: []
+      # -- Set PriorityClass, overrides global
+      priorityClassName: ""
     cluster:
       # -- Log level for the ha cluster service
       logLevel: info
@@ -188,6 +244,12 @@ apis:
         http: 30011
         # NodePort associated with https port
         https: 30010
+    # -- Set tolerations, overrides global
+    tolerations: []
+    # -- Set PriorityClass, overrides global.
+    # If both local and global are not set, the final deployment manifest has a mayastor custom critical priority class assigned to the pod by default.
+    # Refer the `templates/_helpers.tpl` and `templates/mayastor/apis/rest/api-rest-deployment.yaml` for more details.
+    priorityClassName: ""
 
 csi:
   image:
@@ -201,6 +263,10 @@ csi:
     provisionerTag: v2.2.1
     # -- csi-attacher image release tag
     attacherTag: v3.2.1
+    # -- csi-snapshotter image release tag
+    snapshotterTag: v6.2.1
+    # -- csi-snapshot-controller image release tag
+    snapshotControllerTag: v6.2.1
     # -- csi-node-driver-registrar image release tag
     registrarTag: v2.1.0
 
@@ -218,6 +284,10 @@ csi:
         cpu: "16m"
         # -- Memory requests for csi controller
         memory: "64Mi"
+    # -- Set tolerations, overrides global
+    tolerations: []
+    # -- Set PriorityClass, overrides global
+    priorityClassName: ""
   node:
     logLevel: info
     topology:
@@ -247,10 +317,14 @@ csi:
     kubeletDir: /var/lib/kubelet
     pluginMounthPath: /csi
     socketPath: csi.sock
+    # -- Set tolerations, overrides global
+    tolerations: []
+    # -- Set PriorityClass, overrides global
+    priorityClassName: ""
 
 io_engine:
   # -- Log level for the io-engine service
-  logLevel: info,io_engine=info
+  logLevel: info
   api: "v1"
   target:
     nvmf:
@@ -263,8 +337,11 @@ io_engine:
   envcontext: ""
   reactorFreezeDetection:
     enabled: false
-  # -- The number of cpu that each io-engine instance will bind to.
+  # -- The number of cores that each io-engine instance will bind to.
   cpuCount: "2"
+  # -- If not empty, overrides the cpuCount and explicitly sets the list of cores.
+  # Example: --set='io_engine.coreList={30,31}'
+  coreList: []
   # -- Node selectors to designate storage nodes for diskpool creation
   # Note that if multi-arch images support 'kubernetes.io/arch: amd64'
   # should be removed.
@@ -286,6 +363,10 @@ io_engine:
       memory: "1Gi"
       # -- Hugepage size available on the nodes
       hugepages2Mi: "2Gi"
+  # -- Set tolerations, overrides global
+  tolerations: []
+  # -- Set PriorityClass, overrides global
+  priorityClassName: ""
 
 etcd:
   # Pod labels; okay to remove the openebs logging label if required
@@ -349,9 +430,13 @@ etcd:
   # extra debug information on logs
   debug: false
   initialClusterState: "new"
-  # Pod anti-affinity preset
+
+  # -- Pod anti-affinity preset
   # Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   podAntiAffinityPreset: "hard"
+  ## -- nodeSelector [object] Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  nodeSelector: {}
 
   # etcd service parameters defines how the etcd service is exposed
   service:
@@ -368,6 +453,8 @@ etcd:
       # Port from where etcd endpoints are accessible from outside cluster
       clientPort: 31379
       peerPort: ""
+  tolerations: []
+  priorityClassName: ""
 
 loki-stack:
   # -- Enable loki log collection for our components
@@ -441,6 +528,8 @@ loki-stack:
       port: 3100
       # Port where REST endpoints of Loki are accessible from outside cluster
       nodePort: 31001
+    tolerations: []
+    priorityClassName: ""
 
   # promtail configuration
   promtail:
@@ -452,6 +541,7 @@ loki-stack:
     enabled: true
     # -- Disallow promtail from running on the master node
     tolerations: []
+    priorityClassName: ""
     config:
       # -- The Loki address to post logs to
       lokiAddress: http://{{ .Release.Name }}-loki:3100/loki/api/v1/push
@@ -497,6 +587,35 @@ loki-stack:
               - __meta_kubernetes_pod_uid
               - __meta_kubernetes_pod_container_name
               target_label: __path__
+
+# Eventing which enables or disables eventing-related components.
+eventing:
+  enabled: true
+
+# Configuration for the nats message-bus. This is an eventing component, and is enabled when
+# 'eventing.enabled' is set to 'true'.
+nats:
+  nats:
+    image:
+      pullPolicy: IfNotPresent
+      # Defaults to docker.io
+      registry: ""
+    jetstream:
+      enabled: true
+      memStorage:
+        enabled: true
+        # Size of nats message is around 0.3 KB, so it can store around 10K messages.
+        size: "5Mi"
+      fileStorage:
+        enabled: false
+  cluster:
+    enabled: true
+    replicas: 3
+  # The nats box can be installed for debugging, by default its enabled.
+  natsbox:
+    enabled: false
+
+
 obs:
   callhome:
     # -- Enable callhome
@@ -514,3 +633,31 @@ obs:
         cpu: "50m"
         # -- Memory requests for callhome
         memory: "16Mi"
+    # -- Set tolerations, overrides global
+    tolerations: []
+    # -- Set PriorityClass, overrides global
+    priorityClassName: ""
+  # Eventing component enabled/disabled based on obs.callhome.enabled value
+  stats:
+    # -- Log level for stats
+    logLevel: "info"
+    resources:
+      limits:
+        # -- Cpu limits for stats
+        cpu: "100m"
+        # -- Memory limits for stats
+        memory: "32Mi"
+      requests:
+        # -- Cpu requests for stats
+        cpu: "50m"
+        # -- Memory requests for stats
+        memory: "16Mi"
+    service:
+      # -- Rest K8s service type
+      type: ClusterIP
+      # Ports from where rest endpoints are accessible from outside the cluster, only valid if type is NodePort
+      nodePorts:
+        # NodePort associated with http port
+        http: 90011
+        # NodePort associated with https port
+        https: 90010

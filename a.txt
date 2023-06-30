@@ -1,0 +1,223 @@
+{"level":"info","ts":"2023-06-26T15:19:08Z","logger":"initdb","msg":"Running in debug mode.
+The files belonging to this database system will be owned by user \"postgres\".
+This user must also own the server process.
+
+The database cluster will be initialized with locales
+  COLLATE:  C
+  CTYPE:    C
+  MESSAGES: en_US.utf8
+  MONETARY: en_US.utf8
+  NUMERIC:  en_US.utf8
+  TIME:     en_US.utf8
+The default text search configuration will be set to \"english\".
+
+Data page checksums are disabled.
+
+creating directory /var/lib/postgresql/data/pgdata ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default max_connections ... 20
+selecting default shared_buffers ... 400kB
+selecting default time zone ... Etc/UTC
+creating configuration files ... ok
+running bootstrap script ... ","pipe":"stdout","logging_pod":"test-pg-1-initdb"}
+{"level":"info","ts":"2023-06-26T15:19:08Z","logger":"initdb","msg":"VERSION=13.6 (Debian 13.6-1.pgdg110+1)
+PGDATA=/var/lib/postgresql/data/pgdata
+share_path=/usr/share/postgresql/13
+PGPATH=/usr/lib/postgresql/13/bin
+POSTGRES_SUPERUSERNAME=postgres
+POSTGRES_BKI=/usr/share/postgresql/13/postgres.bki
+POSTGRESQL_CONF_SAMPLE=/usr/share/postgresql/13/postgresql.conf.sample
+PG_HBA_SAMPLE=/usr/share/postgresql/13/pg_hba.conf.sample
+PG_IDENT_SAMPLE=/usr/share/postgresql/13/pg_ident.conf.sample
+2023-06-26 15:19:08.972 UTC [67] DEBUG:  invoking IpcMemoryCreate(size=3620864)
+Bus error
+child process exited with exit code 135
+initdb: removing data directory \"/var/lib/postgresql/data/pgdata\"
+","pipe":"stderr","logging_pod":"test-pg-1-initdb"}
+{"level":"error","ts":"2023-06-26T15:19:08Z","msg":"Error while bootstrapping data directory","logging_pod":"test-pg-1-initdb","error":"error while creating the PostgreSQL instance: exit status 1","stacktrace":"github.com/cloudnative-pg/cloudnative-pg/pkg/management/log.(*logger).Error
+    pkg/management/log/log.go:128
+github.com/cloudnative-pg/cloudnative-pg/pkg/management/log.Error
+    pkg/management/log/log.go:166
+github.com/cloudnative-pg/cloudnative-pg/internal/cmd/manager/instance/initdb.initSubCommand
+    internal/cmd/manager/instance/initdb/cmd.go:151
+github.com/cloudnative-pg/cloudnative-pg/internal/cmd/manager/instance/initdb.NewCmd.func2
+    internal/cmd/manager/instance/initdb/cmd.go:104
+github.com/spf13/cobra.(*Command).execute
+    pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:940
+github.com/spf13/cobra.(*Command).ExecuteC
+    pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:1068
+github.com/spf13/cobra.(*Command).Execute
+    pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:992
+main.main
+    cmd/manager/main.go:64
+runtime.main
+    /opt/hostedtoolcache/go/1.20.4/x64/src/runtime/proc.go:250"}
+Error: error while creating the PostgreSQL instance: exit status 1
+
+
+Skip to content
+
+    Pricing
+
+Sign in
+Sign up
+cloudnative-pg /
+cloudnative-pg
+Public
+
+Code
+Issues 73
+Pull requests 14
+Discussions
+Actions
+Projects 1
+Security
+
+    Insights
+
+Update troubleshooting.md #1390
+Closed
+Sapp00 wants to merge 3 commits into cloudnative-pg:main from Sapp00:patch-1
++26 −0
+Conversation 8
+Commits 3
+Checks 16
+Files changed 1
+File filter
+Next commit
+Update troubleshooting.md
+
+Signed-off-by: Sapp00 <39338428+Sapp00@users.noreply.github.com>
+
+@Sapp00
+Sapp00 committed Feb 3, 2023
+commit 1da5d23c632b9dfbbf581ee6a7aca1908f915f9f
+26 changes: 26 additions & 0 deletions 26
+docs/src/troubleshooting.md
+@@ -569,3 +569,29 @@ VOLNAME=$(kubectl get pv -o json | \
+
+kubectl delete pod/$PODNAME pvc/$PODNAME pvc/$PODNAME-wal pv/$VOLNAME
+```
+
+### Error while bootstrapping data directory
+
+If you encounter the issue that your database cannot be initialized because it crashes during the bootstraping process, it is likely that your hugepage settings are set wrong.
+@ringerc ringerc Mar 19, 2023
+
+Quote likely error message(s) that may indicate this fault, for search-ability and to help users.
+
+To check whether hugepages are enabled, run `cat /proc/meminfo` and check if huge pages are configured, their size and how many are free. If they are not enabled, you can adjust your cluster configuration as follows:
+@ringerc ringerc Mar 19, 2023
+
+Run where? On the kube host? Unclear how one would run it on a crashlooping initcontainer.
+```
+  postgresql:
+    parameters:
+      huge_pages: off
+mnencia marked this conversation as resolved.
+```
+If they are enabled, you need to define how much memory should be allocated on them.
+Example:
+Comment on lines +583 to +584
+@ringerc ringerc Mar 19, 2023
+
+Show sample meminfo and how to derive available huge pages limits from host meminfo. Warn that the host meminfo huge pages limit is a shared pool across all containers, so if not using host/pod (anti)affinity to prevent multiple postgres pods on a kube node, must factor in total huge pages allocation for all nodes.
+
+Consider mentioning impact of turning off huge pages, or linking to docs on it; otherwise not clear why huge pages shouldn't just be unconditionally off.
+```
+  postgresql:
+    parameters:
+      shared_buffers: "128MB"
+  resources:
+    requests:
+      memory: "512Mi"
+    limits:
+      hugepages-2Mi: "512Mi"
+```
+
+Please keep in mind that you have sufficient huge-page memory allocated (in the example above at least 512MiB need to be free) - check that in the meminfo.
+Footer
+© 2023 GitHub, Inc.
+Footer navigation
+
+    Terms
+    Privacy
+    Security
+    Status
+    Docs
+    Contact GitHub
+    Pricing
+    API
+    Training
+    Blog
+    About
+
+Update troubleshooting.md by Sapp00 · Pull Request #1390 · cloudnative-pg/cloudnative-pg · GitHub
+
+
+
+cat /var/lib/postgresql/data/pgdata/custom.conf
+huge_pages = 'off'
+#huge_pages = try			# on, off, or try
+#huge_page_size = 0			# zero for system default
+
+
+{"level":"info","ts":"2023-06-27T09:39:22Z","msg":"Creating new data directory","logging_pod":"test-pg-1-initdb","pgdata":"/var/lib/postgresql/data/pgdata","initDbOptions":["--username","postgres","-D","/var/lib/postgresql/data/pgdata","-d","--encoding=UTF8","--lc-collate=C","--lc-ctype=C"]}
+{"level":"info","ts":"2023-06-27T09:39:22Z","logger":"initdb","msg":"Running in debug mode.
+The files belonging to this database system will be owned by user \"postgres\".
+This user must also own the server process.
+
+The database cluster will be initialized with this locale configuration:
+  provider:    libc
+  LC_COLLATE:  C
+  LC_CTYPE:    C
+  LC_MESSAGES: en_US.utf8
+  LC_MONETARY: en_US.utf8
+  LC_NUMERIC:  en_US.utf8
+  LC_TIME:     en_US.utf8
+The default text search configuration will be set to \"english\".
+
+Data page checksums are disabled.
+
+creating directory /var/lib/postgresql/data/pgdata ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default max_connections ... 20
+selecting default shared_buffers ... 400kB
+selecting default time zone ... Etc/UTC
+creating configuration files ... ok
+running bootstrap script ... ","pipe":"stdout","logging_pod":"test-pg-1-initdb"}
+{"level":"info","ts":"2023-06-27T09:39:22Z","logger":"initdb","msg":"VERSION=15.3 (Debian 15.3-1.pgdg110+1)
+PGDATA=/var/lib/postgresql/data/pgdata
+share_path=/usr/share/postgresql/15
+PGPATH=/usr/lib/postgresql/15/bin
+POSTGRES_SUPERUSERNAME=postgres
+POSTGRES_BKI=/usr/share/postgresql/15/postgres.bki
+POSTGRESQL_CONF_SAMPLE=/usr/share/postgresql/15/postgresql.conf.sample
+PG_HBA_SAMPLE=/usr/share/postgresql/15/pg_hba.conf.sample
+PG_IDENT_SAMPLE=/usr/share/postgresql/15/pg_ident.conf.sample
+2023-06-27 09:39:22.866 UTC [68] DEBUG:  invoking IpcMemoryCreate(size=3891200)
+Bus error
+child process exited with exit code 135
+initdb: removing data directory \"/var/lib/postgresql/data/pgdata\"
+","pipe":"stderr","logging_pod":"test-pg-1-initdb"}
+{"level":"error","ts":"2023-06-27T09:39:22Z","msg":"Error while bootstrapping data directory","logging_pod":"test-pg-1-initdb","error":"error while creating the PostgreSQL instance: exit status 1","stacktrace":"github.com/cloudnative-pg/cloudnative-pg/pkg/management/log.(*logger).Error
+\tpkg/management/log/log.go:128
+github.com/cloudnative-pg/cloudnative-pg/pkg/management/log.Error
+\tpkg/management/log/log.go:166
+github.com/cloudnative-pg/cloudnative-pg/internal/cmd/manager/instance/initdb.initSubCommand
+\tinternal/cmd/manager/instance/initdb/cmd.go:151
+github.com/cloudnative-pg/cloudnative-pg/internal/cmd/manager/instance/initdb.NewCmd.func2
+\tinternal/cmd/manager/instance/initdb/cmd.go:104
+github.com/spf13/cobra.(*Command).execute
+\tpkg/mod/github.com/spf13/cobra@v1.7.0/command.go:940
+github.com/spf13/cobra.(*Command).ExecuteC
+\tpkg/mod/github.com/spf13/cobra@v1.7.0/command.go:1068
+github.com/spf13/cobra.(*Command).Execute
+\tpkg/mod/github.com/spf13/cobra@v1.7.0/command.go:992
+main.main
+\tcmd/manager/main.go:64
+runtime.main
+\t/opt/hostedtoolcache/go/1.20.4/x64/src/runtime/proc.go:250"}
+Error: error while creating the PostgreSQL instance: exit status 1

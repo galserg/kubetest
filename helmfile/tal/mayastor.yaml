@@ -7,12 +7,12 @@ releases:
   - name: mayastor
     namespace: mayastor
     chart: mayastor/mayastor
-    version: 2.2.0
+    version:
     values:
       - etcd:
           replicaCount: 3
           persistence:
             enabled: true
-            storageClass: "manual"
+            storageClass: "local-path"
         loki-stack:
           enabled: false

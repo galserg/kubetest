@@ -1,0 +1,170 @@
+spec:
+  volumes:
+    - name: pgdata
+      persistentVolumeClaim:
+        claimName: test-pg-1
+    - name: scratch-data
+      emptyDir: {}
+    - name: shm
+      emptyDir:
+        medium: Memory
+    - name: superuser-secret
+      secret:
+        secretName: test-pg-superuser
+        defaultMode: 420
+    - name: app-secret
+      secret:
+        secretName: test-pg-app
+        defaultMode: 420
+    - name: kube-api-access-hznqr
+      projected:
+        sources:
+          - serviceAccountToken:
+              expirationSeconds: 3607
+              path: token
+          - configMap:
+              name: kube-root-ca.crt
+              items:
+                - key: ca.crt
+                  path: ca.crt
+          - downwardAPI:
+              items:
+                - path: namespace
+                  fieldRef:
+                    apiVersion: v1
+                    fieldPath: metadata.namespace
+        defaultMode: 420
+  initContainers:
+    - name: bootstrap-controller
+      image: ghcr.io/cloudnative-pg/cloudnative-pg:1.20.1
+      command:
+        - /manager
+        - bootstrap
+        - /controller/manager
+        - '--log-level=trace'
+      resources: {}
+      volumeMounts:
+        - name: pgdata
+          mountPath: /var/lib/postgresql/data
+        - name: scratch-data
+          mountPath: /run
+        - name: scratch-data
+          mountPath: /controller
+        - name: shm
+          mountPath: /dev/shm
+        - name: superuser-secret
+          mountPath: /etc/superuser-secret
+        - name: app-secret
+          mountPath: /etc/app-secret
+        - name: kube-api-access-hznqr
+          readOnly: true
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        capabilities:
+          drop:
+            - ALL
+        privileged: false
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+  containers:
+    - name: initdb
+      image: ghcr.io/cloudnative-pg/postgresql:13.6
+      command:
+        - /controller/manager
+        - instance
+        - init
+        - '--initdb-flags'
+        - '-d --encoding=UTF8 --lc-collate=C --lc-ctype=C'
+        - '--app-db-name'
+        - app
+        - '--app-user'
+        - app
+        - '--log-level=trace'
+      env:
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        - name: POD_NAME
+          value: test-pg-1-initdb
+        - name: NAMESPACE
+          value: pg
+        - name: CLUSTER_NAME
+          value: test-pg
+        - name: PGPORT
+          value: '5432'
+        - name: PGHOST
+          value: /controller/run
+      resources: {}
+      volumeMounts:
+        - name: pgdata
+          mountPath: /var/lib/postgresql/data
+        - name: scratch-data
+          mountPath: /run
+        - name: scratch-data
+          mountPath: /controller
+        - name: shm
+          mountPath: /dev/shm
+        - name: superuser-secret
+          mountPath: /etc/superuser-secret
+        - name: app-secret
+          mountPath: /etc/app-secret
+        - name: kube-api-access-hznqr
+          readOnly: true
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        capabilities:
+          drop:
+            - ALL
+        privileged: false
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+  restartPolicy: Never
+  terminationGracePeriodSeconds: 30
+  dnsPolicy: ClusterFirst
+  serviceAccountName: test-pg
+  serviceAccount: test-pg
+  nodeName: wr3
+  securityContext:
+    runAsUser: 26
+    runAsGroup: 26
+    runAsNonRoot: true
+    fsGroup: 26
+    seccompProfile:
+      type: RuntimeDefault
+  hostname: test-pg-1-initdb
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: cnpg.io/cluster
+                  operator: In
+                  values:
+                    - test-pg
+            topologyKey: kubernetes.io/hostname
+  schedulerName: default-scheduler
+  tolerations:
+    - key: node.kubernetes.io/not-ready
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  priority: 0
+  enableServiceLinks: true
+  preemptionPolicy: PreemptLowerPriority

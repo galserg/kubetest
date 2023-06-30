@@ -98,14 +98,38 @@ Usage:
     {{- end }}
 {{- end -}}
 
-{{/* Generate CPU list specification based on CPU count (-l param of mayastor) */}}
+{{/* Generate Core list specification (-l param of io-engine) */}}
 {{- define "cpuFlag" -}}
-{{- range $i, $e := until (int .Values.io_engine.cpuCount) }}
-{{- if gt $i 0 }}
-    {{- printf "," }}
-{{- end }}
-{{- printf "%d" (add $i 1) }}
-{{- end }}
+{{- include "coreListUniq" . -}}
+{{- end -}}
+
+{{/* Get the number of cores from the coreList */}}
+{{- define "coreCount" -}}
+{{- include "coreListUniq" . | split "," | len -}}
+{{- end -}}
+
+{{/* Get a list of cores as a comma-separated list */}}
+{{- define "coreListUniq" -}}
+{{- if .Values.io_engine.coreList -}}
+{{- $cores_pre := .Values.io_engine.coreList -}}
+{{- if not (kindIs "slice" .Values.io_engine.coreList) -}}
+{{- $cores_pre = list $cores_pre -}}
+{{- end -}}
+{{- $cores := list -}}
+{{- range $index, $value := $cores_pre | uniq -}}
+{{- $value = $value | toString | replace " " "" }}
+{{- if eq ($value | int | toString) $value -}}
+{{-   $cores = append $cores $value -}}
+{{- end -}}
+{{- end -}}
+{{- $first := first $cores | required (print "At least one core must be specified in io_engine.coreList") -}}
+{{- $cores | join "," -}}
+{{- else -}}
+{{- if gt 1 (.Values.io_engine.cpuCount | int) -}}
+{{- fail ".Values.io_engine.cpuCount must be >= 1" -}}
+{{- end -}}
+{{- untilStep 1 (add 1 .Values.io_engine.cpuCount | int) 1 | join "," -}}
+{{- end -}}
 {{- end }}
 
 {{/*
@@ -116,4 +140,70 @@ Usage:
 {{- define "label_prefix" -}}
     {{ $product := .Files.Get "product.yaml" | fromYaml }}
     {{- print $product.domain -}}
+{{- end -}}
+
+<<<<<<< HEAD
+
+{{/*
+Creates the tolerations based on the global and component wise tolerations, with early eviction
+Usage:
+{{ include "tolerations_with_early_eviction" (dict "template" . "localTolerations" .Values.path.to.local.tolerations) }}
+*/}}
+{{- define "tolerations_with_early_eviction" -}}
+{{- toYaml .template.Values.earlyEvictionTolerations | nindent 8 }}
+{{- if .localTolerations }}
+    {{- toYaml .localTolerations | nindent 8 }}
+{{- else if .template.Values.tolerations }}
+    {{- toYaml .template.Values.tolerations | nindent 8 }}
+{{- end }}
+{{- end }}
+
+
+{{/*
+Creates the tolerations based on the global and component wise tolerations
+Usage:
+{{ include "tolerations" (dict "template" . "localTolerations" .Values.path.to.local.tolerations) }}
+*/}}
+{{- define "tolerations" -}}
+{{- if .localTolerations }}
+    {{- toYaml .localTolerations | nindent 8 }}
+{{- else if .template.Values.tolerations }}
+    {{- toYaml .template.Values.tolerations | nindent 8 }}
+{{- end }}
+{{- end }}
+
+{{/*
+Generates the priority class name, with the given `template` and the `localPriorityClass`
+Usage:
+{{ include "priority_class" (dict "template" . "localPriorityClass" .Values.path.to.local.priorityClassName) }}
+*/}}
+{{- define "priority_class" -}}
+    {{- if typeIs "string" .localPriorityClass }}
+        {{- if .localPriorityClass -}}
+            {{ printf "%s" .localPriorityClass -}}
+        {{- else if .template.Values.priorityClassName -}}
+            {{ printf "%s" .template.Values.priorityClassName -}}
+        {{- else -}}
+            {{ printf "" -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
+
+
+{{/*
+Generates the priority class name, with the given `template` and the `localPriorityClass`, sets to mayastor default priority class
+if both are empty
+Usage:
+{{ include "priority_class_with_default" (dict "template" . "localPriorityClass" .Values.path.to.local.priorityClassName) }}
+*/}}
+{{- define "priority_class_with_default" -}}
+    {{- if typeIs "string" .localPriorityClass }}
+        {{- if .localPriorityClass -}}
+            {{ printf "%s" .localPriorityClass -}}
+        {{- else if .template.Values.priorityClassName -}}
+            {{ printf "%s" .template.Values.priorityClassName -}}
+        {{- else -}}
+            {{ printf "%s-cluster-critical" .template.Release.Name -}}
+        {{- end -}}
+    {{- end -}}
 {{- end -}}
