@@ -45,19 +45,15 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          env:
-            - name: SERVER_URL
-              value: "http://tc-teamcity-server:8111"
-            - name: AGENT_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: OWN_PORT
-              value: {{ .Values.service.port | quote }}
-            - name: DOCKER_IN_DOCKER
-              value: "true"
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: teamcity-config
+          command: ["/bin/sh", "-c"]
+          args: ["export AGENT_INDEX=$(python3 -c 'import os; print(os.environ[\"HOSTNAME\"].split(\"-\")[-1])');
+                  export SERVER_URL=$(echo $AGENTS_CONFIG | python3 -c 'import sys, json, os; print(json.load(sys.stdin)[\"agents\"][int(os.environ[\"AGENT_INDEX\"])][\"server_url\"])');
+                  export AGENT_TOKEN=$(echo $AGENTS_CONFIG | python3 -c 'import sys, json, os; print(json.load(sys.stdin)[\"agents\"][int(os.environ[\"AGENT_INDEX\"])][\"agent_token\"])');
+                  export AGENT_NAME=$(echo $AGENTS_CONFIG | python3 -c 'import sys, json, os; print(json.load(sys.stdin)[\"agents\"][int(os.environ[\"AGENT_INDEX\"])][\"agent_name\"])');
+       /run-services.sh"]
           volumeMounts:
             - name: data
               mountPath: /opt/buildagent/work
