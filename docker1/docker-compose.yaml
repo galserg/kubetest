@@ -1,0 +1,71 @@
+version: '3.7'
+services:
+  dns:
+    restart: always
+    image: quay.io/poseidon/dnsmasq
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    command:
+      - -d
+      - --dhcp-range=192.168.3.151,192.168.3.199
+      - --dhcp-option=1,255.255.255.0
+      - --dhcp-option=3,192.168.3.150
+      - --dhcp-option=6,192.168.3.150
+      - --enable-tftp
+      - --tftp-root=/var/lib/tftpboot
+      - --dhcp-match=set:bios,option:client-arch,0
+      - --dhcp-boot=tag:bios,undionly.kpxe
+      - --dhcp-match=set:efi32,option:client-arch,6
+      - --dhcp-boot=tag:efi32,ipxe.efi
+      - --dhcp-match=set:efibc,option:client-arch,7
+      - --dhcp-boot=tag:efibc,ipxe.efi
+      - --dhcp-match=set:efi64,option:client-arch,9
+      - --dhcp-boot=tag:efi64,ipxe.efi
+      - --dhcp-userclass=set:ipxe,iPXE
+      - --dhcp-boot=tag:ipxe,http://192.168.3.150:8080/boot.ipxe
+      - --log-queries
+      - --log-dhcp
+      - --address=/test1.home/192.168.3.211
+      - --server=/stlc/192.0.4.1
+      - --dhcp-host=16:ee:09:af:48:93,192.168.3.161
+      - --dhcp-host=16:ec:57:c1:ce:1c,192.168.3.162
+      - --dhcp-host=16:88:be:ad:40:87,192.168.3.163
+      - --dhcp-host=16:7f:73:c9:c2:92,192.168.3.171
+      - --dhcp-host=16:4f:ec:23:b1:03,192.168.3.172
+      - --dhcp-host=16:cf:4a:62:cb:e1,192.168.3.173
+  matchbox:
+    restart: always
+    image: quay.io/poseidon/matchbox:v0.10.0
+    network_mode: host
+    command:
+      - -address=0.0.0.0:8080
+      - -rpc-address=0.0.0.0:8081
+      - -log-level=debug
+    volumes:
+      - /data/volumes/matchbox/var/lib/matchbox:/var/lib/matchbox
+      - /data/volumes/matchbox/etc/matchbox:/etc/matchbox
+  wireguard:
+    image: lscr.io/linuxserver/wireguard
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - SERVERURL=galuzin.dev
+      - SERVERPORT=51821 #optional
+      - PEERS=10 #optional
+      - PEERDNS=192.168.3.150
+      - INTERNAL_SUBNET=10.13.13.0 #optional
+      - ALLOWEDIPS=0.0.0.0/0 #optional
+    volumes:
+      - /data/volumes/wireguard/config:/config
+      - /lib/modules:/lib/modules
+    ports:
+      - 51821:51821/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
