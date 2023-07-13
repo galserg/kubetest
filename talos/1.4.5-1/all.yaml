@@ -1,0 +1,10 @@
+machine:
+  install:
+    disk: /dev/vda
+    wipe: true
+cluster:
+  network:
+    cni:
+      name: none
+  proxy:
+    disabled: true
