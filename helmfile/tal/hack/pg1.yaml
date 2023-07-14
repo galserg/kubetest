@@ -6,7 +6,7 @@ metadata:
 spec:
   instances: 3
   storage:
-    storageClass: mayastor-3
+    storageClass: local-path
     size: 5Gi
   logLevel: trace
 
