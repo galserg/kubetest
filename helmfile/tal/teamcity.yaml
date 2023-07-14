@@ -21,7 +21,7 @@ releases:
                   pathType: ImplementationSpecific
         storage:
           enable: true
-          storageClass: mayastor-3
+          storageClass: local-path
           size: 5Gi
 
   - name: ta
@@ -32,7 +32,7 @@ releases:
       - replicaCount: 3
         storage:
           enable: true
-          storageClass: mayastor-3
+          storageClass: local-path
           size: 1Gi
         agentsConfig:
           agents:
