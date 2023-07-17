@@ -1,0 +1,20 @@
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: jira
+    namespace: cicd
+    chart: atlassian/jira
+    version: 
+    values:
+      - replicaCount: 1
+        image:
+          repository: atlassian/jira-software
+          tag: latest
+        service:
+          type: ClusterIP
+          port: 80
+        ingress:
+          create: true
+          host: jira.test.home
