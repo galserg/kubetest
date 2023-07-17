@@ -12,16 +12,12 @@ releases:
         image:
           repository: atlassian/jira-software
           tag: latest
-        env:
-          JVM_MINIMUM_MEMORY: "1024m"
-          JVM_MAXIMUM_MEMORY: "2048m"
-        resources:
-          requests:
-            cpu: "2"
-            memory: "6Gi"
-          limits:
-            cpu: "4"
-            memory: "8Gi"
+        service:
+          type: ClusterIP
+          port: 80
+        ingress:
+          create: true
+          host: jira.test.home 
         volumes:
           localHome:
             persistentVolumeClaim:
@@ -29,10 +25,4 @@ releases:
               storageClassName: "local-path"
               resources:
                 requests:
-                  storage: "1Gi"
-        service:
-          type: ClusterIP
-          port: 80
-        ingress:
-          create: true
-          host: jira.test.home
+                  storage: "6Gi"
