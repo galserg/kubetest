@@ -28,8 +28,3 @@ releases:
         ingress:
           create: true
           host: jira.test.home 
-        volumes:
-          localHome:
-            persistentVolumeClaim:
-              create: true
-              storageClassName: "local-path"
