@@ -22,6 +22,14 @@ releases:
           limits:
             cpu: "4"
             memory: "8Gi"
+        volumes:
+          localHome:
+            persistentVolumeClaim:
+              create: true
+              storageClassName: "local-path"
+              resources:
+                requests:
+                  storage: "1Gi"
         service:
           type: ClusterIP
           port: 80
