@@ -33,6 +33,3 @@ releases:
             persistentVolumeClaim:
               create: true
               storageClassName: "local-path"
-              resources:
-                requests:
-                  storage: "6Gi"
