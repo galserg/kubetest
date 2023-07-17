@@ -17,11 +17,11 @@ releases:
           JVM_MAXIMUM_MEMORY: "2048m"
         resources:
           requests:
-            cpu: "1"
-            memory: "2Gi"
-          limits:
             cpu: "2"
-            memory: "4Gi"
+            memory: "6Gi"
+          limits:
+            cpu: "4"
+            memory: "8Gi"
         service:
           type: ClusterIP
           port: 80
