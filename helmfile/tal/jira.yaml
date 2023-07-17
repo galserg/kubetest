@@ -12,6 +12,16 @@ releases:
         image:
           repository: atlassian/jira-software
           tag: latest
+        env:
+          JVM_MINIMUM_MEMORY: "1024m"
+          JVM_MAXIMUM_MEMORY: "2048m"
+        resources:
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+          limits:
+            cpu: "2"
+            memory: "4Gi"
         service:
           type: ClusterIP
           port: 80
