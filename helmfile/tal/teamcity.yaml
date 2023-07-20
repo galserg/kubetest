@@ -38,10 +38,4 @@ releases:
           agents:
             - server_url: "http://tc-teamcity-server:8111/"
               agent_token: "6f74a6f223ebdc4796954d7dcf3167d7"
-              agent_name: "ta-teamcity-agent-0"
-            - server_url: "http://tc-teamcity-server:8111/"
-              agent_token: "6d70ef75be0b29f61e622b84f0b1ef63"
-              agent_name: "ta-teamcity-agent-1"
-            - server_url: "http://tc-teamcity-server:8111/"
-              agent_token: "6f368964d83a5a79b3c1c4f5e3ca6973"
-              agent_name: "ta-teamcity-agent-2"
+              agent_name: "ta-teamcity-agent-"
