@@ -60,10 +60,10 @@ spec:
                 name: teamcity-config
           command: ["/bin/sh", "-c"]
           args: ["export AGENT_INDEX=$(python3 -c 'import os; print(os.environ[\"HOSTNAME\"].split(\"-\")[-1])');
-                  export SERVER_URL=$(echo $AGENTS_CONFIG | python3 -c 'import sys, json, os; print(json.load(sys.stdin)[\"agents\"][int(os.environ[\"AGENT_INDEX\"])][\"server_url\"])');
-                  export AGENT_TOKEN=$(echo $AGENTS_CONFIG | python3 -c 'import sys, json, os; print(json.load(sys.stdin)[\"agents\"][int(os.environ[\"AGENT_INDEX\"])][\"agent_token\"])');
-                  export AGENT_NAME=$(echo $AGENTS_CONFIG | python3 -c 'import sys, json, os; print(json.load(sys.stdin)[\"agents\"][int(os.environ[\"AGENT_INDEX\"])][\"agent_name\"])');
-       /run-services.sh"]
+                  export SERVER_URL=$(echo $AGENTS_CONFIG | python3 -c 'import sys, json; print(json.load(sys.stdin)[\"agents\"][0][\"server_url\"])');
+                  export AGENT_TOKEN=$(echo $AGENTS_CONFIG | python3 -c 'import sys, json; print(json.load(sys.stdin)[\"agents\"][0][\"agent_token\"])');
+                  export AGENT_NAME=$(echo $AGENTS_CONFIG | python3 -c 'import sys, json; print(json.load(sys.stdin)[\"agents\"][0][\"agent_name\"])+os.environ[\"AGENT_INDEX\"]');
+      /run-services.sh"]
           volumeMounts:
             - name: data
               mountPath: /opt/buildagent/work
