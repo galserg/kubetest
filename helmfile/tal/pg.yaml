@@ -1,4 +1,3 @@
----
 bases:
   - envs/environments.yaml
 
@@ -6,8 +5,4 @@ bases:
 releases:
   - name: cnpg
     namespace: cnpg-system
-    chart: cnpg/cloudnative-pg
-    version:
-
-
-
+    chart: ./cnpg/cloudnative-pg
