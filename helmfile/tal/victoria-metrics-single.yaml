@@ -1,0 +1,54 @@
+---
+bases:
+  - envs/environments.yaml
+
+---
+releases:
+  - name: vm
+    namespace: monitoring
+    chart: vm/victoria-metrics-single
+    version:
+    values:
+      - rbac:
+          create: true
+        serviceAccount:
+          create: true
+        server:
+          enabled: true
+          retentionPeriod: {{ .Values.monitoring.vm.retentionPeriod }}
+          persistentVolume:
+            enabled: true
+            storageClass: {{ .Values.monitoring.vm.storageClass }}
+            size: {{ .Values.monitoring.vm.size }}
+          ingress:
+            enabled: false
+            annotations: {}
+            hosts: []
+            tls: []
+            pathType: Prefix
+  - name: vma
+    namespace: monitoring
+    chart: vm/victoria-metrics-auth
+    version:
+    values:
+      - rbac:
+          pspEnabled: false
+        serviceAccount:
+          create: true
+        ingress:
+          enabled: true
+          ingressClassName: nginx
+          annotations: {}
+          hosts:
+            - name: vmauth.{{ .Values.nginx.domain.private }}
+              path: /
+              port: http
+          pathType: Prefix
+        serviceMonitor:
+          enabled: false
+        config:
+          users:
+           - username: "vmauth"
+             password: "q1w2e3r4"
+             url_prefix: "http://vm-victoria-metrics-single-server:8428"
+

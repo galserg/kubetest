@@ -3,7 +3,7 @@
 ```
 fio --name=benchtest \
     --size=800m \
-    --filename=/home/user/test.fio \
+    --filename=/test.fio \
     --direct=1 \
     --rw=randrw \
     --ioengine=libaio \

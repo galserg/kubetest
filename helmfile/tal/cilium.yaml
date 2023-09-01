@@ -1,6 +1,6 @@
 ---
 bases:
-  - envs/environments.yaml
+  - envs/environments-full.yaml
 
 ---
 releases:

@@ -1,17 +1,17 @@
 project:
   name: test
 cluster:
-  name: test
-  id: 1
-  vip: 192.168.3.200
+  name: test1
+  id: 2
+  vip: 192.168.3.210
 
 nginx:
   ip:
-    public: 192.168.3.201
+    public: 192.168.3.211
     private:
   domain:
     public: test.galuzin.dev
-    private: test.home
+    private: test1.home
 
 monitoring:
   alertmanager:
@@ -21,7 +21,13 @@ monitoring:
   grafana:
     adminPassword: q1w2e3r4
   prometheus:
-    retention: 7d
-    retentionSize: 8GB
+    retention: 30d
+    retentionSize: 9GB
     storage: 10G
+    storageClassName: mayastor-3
+  vm:
+    retentionPeriod: 3
+    storageClass: mayastor-3
+    size: 16G
+
 

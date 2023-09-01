@@ -4,6 +4,10 @@ environments:
     values:
     - envs/base.yaml
     - envs/test.yaml
+  test1:
+    values:
+    - envs/base.yaml
+    - envs/test1.yaml
 
 
 ---
@@ -32,6 +36,8 @@ repositories:
   url: https://cloudnative-pg.github.io/charts
 - name: elastic
   url: https://helm.elastic.co
+- name: vm
+  url: https://victoriametrics.github.io/helm-charts/
 ---
 
 ---

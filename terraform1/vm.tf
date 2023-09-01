@@ -36,8 +36,8 @@ resource "proxmox_vm_qemu" "workers" {
     onboot                    = true
     pxe                       = true
     target_node               = each.value.target_node
-    memory                    = 16384
-    cores                     = 8
+    memory                    = 32768
+    cores                     = 16
     scsihw                    = "virtio-scsi-pci"
     qemu_os                   = "l26"
     network {

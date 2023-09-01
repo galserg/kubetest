@@ -79,6 +79,22 @@ releases:
               jsonData:
                 maxLines: 5000
               isDefault: "false"
+            - name: vm
+              access: proxy
+              type: prometheus
+              url: http://vm-victoria-metrics-single-server:8428
+              isDefault: "false"
+            - name: vmauth
+              access: proxy
+              basicAuth: true
+              basicAuthUser: vmauth
+              editable: true
+              type: prometheus
+              url: http://vmauth.{{ .Values.nginx.domain.private }}
+              jsonData:
+                tlsSkipVerify: true
+              secureJsonData:
+                basicAuthPassword: q1w2e3r4
         kubeApiServer:
           enabled: true
         kubelet:
@@ -125,6 +141,15 @@ releases:
               - /
             pathType: ImplementationSpecific
           prometheusSpec:
+            remoteWrite:
+              - url: http://vmauth.{{ .Values.nginx.domain.private }}/api/v1/write
+                basicAuth:
+                  username:
+                    name: vmauth-basic-auth
+                    key: username
+                  password:
+                    name: vmauth-basic-auth
+                    key: password
             ruleSelectorNilUsesHelmValues: false
             serviceMonitorSelectorNilUsesHelmValues: false
             retention: {{ .Values.monitoring.prometheus.retention }}
@@ -132,7 +157,7 @@ releases:
             storageSpec:
               volumeClaimTemplate:
                 spec:
-                  storageClassName: "mayastor-3"
+                  storageClassName: {{ .Values.monitoring.prometheus.storageClassName }}
                   accessModes: ["ReadWriteOnce"]
                   resources:
                     requests:

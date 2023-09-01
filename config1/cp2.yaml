@@ -1,6 +1,6 @@
 version: v1alpha1 # Indicates the schema used to decode the contents.
 debug: false # Enable verbose logging to the console.
-persist: true # Indicates whether to pull the machine config upon every boot.
+persist: true # description: |
 # Provides machine specific configuration options.
 machine:
     type: controlplane # Defines the role of the machine within the cluster.
@@ -18,7 +18,7 @@ machine:
 
     # Used to provide additional options to the kubelet.
     kubelet:
-        image: ghcr.io/siderolabs/kubelet:v1.27.2 # The `image` field is an optional reference to an alternative kubelet image.
+        image: ghcr.io/siderolabs/kubelet:v1.28.0 # The `image` field is an optional reference to an alternative kubelet image.
         defaultRuntimeSeccompProfileEnabled: true # Enable container runtime default Seccomp profile.
         disableManifestsDirectory: true # The `disableManifestsDirectory` field configures the kubelet to get static pod manifests from the /etc/kubernetes/manifests directory.
         
@@ -89,8 +89,8 @@ machine:
               # bond:
               #     # The interfaces that make up the bond.
               #     interfaces:
-              #         - eth0
-              #         - eth1
+              #         - enp2s0
+              #         - enp2s1
               #     # Picks a network device using the selector.
               #     deviceSelectors:
               #         - busPath: 00:* # PCI, USB bus prefix, supports matching by wildcard.
@@ -103,8 +103,8 @@ machine:
               # bridge:
               #     # The interfaces that make up the bridge.
               #     interfaces:
-              #         - eth0
-              #         - eth1
+              #         - enxda4042ca9a51
+              #         - enxae2a6774c259
               #     # A bridge option.
               #     stp:
               #         enabled: true # Whether Spanning Tree Protocol (STP) is enabled.
@@ -155,8 +155,7 @@ machine:
     # Used to provide instructions for installations.
     install:
         disk: /dev/vda # The disk used for installations.
-        image: ghcr.io/siderolabs/installer:v1.4.5 # Allows for supplying the image used to perform the installation.
-        bootloader: true # Indicates if a bootloader should be installed.
+        image: ghcr.io/siderolabs/installer:v1.5.1 # Allows for supplying the image used to perform the installation.
         wipe: true # Indicates if the installation disk should be wiped at installation time.
         
         # # Look up disk using disk attributes like model, size, serial and others.
@@ -205,6 +204,7 @@ machine:
         rbac: true # Enable role-based access control (RBAC).
         stableHostname: true # Enable stable default hostname.
         apidCheckExtKeyUsage: true # Enable checks for extended key usage of client certificates in apid.
+        diskQuotaSupport: true # Enable XFS project quota support for EPHEMERAL partition and user disks.
         
         # # Configure Talos API access from Kubernetes pods.
         # kubernetesTalosAPIAccess:
@@ -311,6 +311,10 @@ machine:
     #             - # Deterministically generated key from the node UUID and PartitionLabel.
     #               nodeID: {}
     #               slot: 0 # Key slot number for LUKS2 encryption.
+    #               
+    #               # # KMS managed encryption key.
+    #               # kms:
+    #               #     endpoint: https://192.168.88.21:4443 # KMS endpoint to Seal/Unseal the key.
     #         
     #         # # Cipher kind to use for the encryption. Depends on the encryption provider.
     #         # cipher: aes-xts-plain64
@@ -361,7 +365,7 @@ cluster:
     # Provides control plane specific configuration options.
     controlPlane:
         endpoint: https://192.168.3.210:6443 # Endpoint is the canonical controlplane endpoint, which can be an IP address or a DNS hostname.
-    clusterName: test-cluster # Configures the cluster's name.
+    clusterName: prod-cluster # Configures the cluster's name.
     # Provides cluster specific network configuration options.
     network:
         # The CNI used.
@@ -389,7 +393,7 @@ cluster:
         key: LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSUtHeEdYMnc1OUhpWmNRK0Z1cnhacXo3N3dFdXJ6dWxaamk0MGhzR3lvRm1vQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFSnEzUEJJY2UwdnRsbUd2UzJjTXloTU05VkR3SU93c3NveDJnZmJTQjhSVUhvQVNWK0tYSAp6RUl5SnIySG12Y2crY2hibXllSUlWcHFMUWV3cFRKdkt3PT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=
     # API server specific configuration options.
     apiServer:
-        image: registry.k8s.io/kube-apiserver:v1.27.2 # The container image used in the API server manifest.
+        image: registry.k8s.io/kube-apiserver:v1.28.0 # The container image used in the API server manifest.
         # Extra certificate subject alternative names for the API server's certificate.
         certSANs:
             - 192.168.3.210
@@ -421,14 +425,14 @@ cluster:
                 - level: Metadata
     # Controller manager server specific configuration options.
     controllerManager:
-        image: registry.k8s.io/kube-controller-manager:v1.27.2 # The container image used in the controller manager manifest.
+        image: registry.k8s.io/kube-controller-manager:v1.28.0 # The container image used in the controller manager manifest.
     # Kube-proxy server-specific configuration options
     proxy:
         disabled: true # Disable kube-proxy deployment on cluster bootstrap.
-        image: registry.k8s.io/kube-proxy:v1.27.2 # The container image used in the kube-proxy manifest.
+        image: registry.k8s.io/kube-proxy:v1.28.0 # The container image used in the kube-proxy manifest.
     # Scheduler server specific configuration options.
     scheduler:
-        image: registry.k8s.io/kube-scheduler:v1.27.2 # The container image used in the scheduler manifest.
+        image: registry.k8s.io/kube-scheduler:v1.28.0 # The container image used in the scheduler manifest.
     # Configures cluster member discovery.
     discovery:
         enabled: true # Enable the cluster membership discovery feature.
@@ -476,7 +480,7 @@ cluster:
 
     # # Core DNS specific configuration options.
     # coreDNS:
-    #     image: docker.io/coredns/coredns:1.10.1 # The `image` field is an override to the default coredns image.
+    #     image: registry.k8s.io/coredns/coredns:v1.10.1 # The `image` field is an override to the default coredns image.
 
     # # External cloud provider configuration.
     # externalCloudProvider:
@@ -494,3 +498,6 @@ cluster:
     # # Settings for admin kubeconfig generation.
     # adminKubeconfig:
     #     certLifetime: 1h0m0s # Admin kubeconfig certificate lifetime (default is 1 year).
+
+    # # Allows running workload on control-plane nodes.
+    # allowSchedulingOnControlPlanes: true
