@@ -1,13 +1,14 @@
 machine:
   network:
     interfaces:
-      - interface: eth0
-        dhcp: false
+      - deviceSelector:
+          hardwareAddr: ${macaddr}
         addresses:
           - ${ipaddr}/24
         routes:
           - network: 0.0.0.0/0
             gateway: 192.168.3.150
+        dhcp: false
     hostname: ${hostname}
     nameservers:
       - 192.168.3.150

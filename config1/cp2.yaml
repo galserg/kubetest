@@ -57,7 +57,9 @@ machine:
         hostname: cp2 # Used to statically set the hostname for the machine.
         # `interfaces` is used to define the network interface configuration.
         interfaces:
-            - interface: eth0 # The interface name.
+            - # Picks a network device using the selector.
+              deviceSelector:
+                hardwareAddr: 16:ec:57:c1:ce:1c # Device hardware address, supports matching by wildcard.
               # Assigns static IP addresses to the interface.
               addresses:
                 - 192.168.3.162/24
@@ -70,20 +72,8 @@ machine:
               vip:
                 ip: 192.168.3.210 # Specifies the IP address to be used.
               
-              # # Picks a network device using the selector.
-
-              # # select a device with bus prefix 00:*.
-              # deviceSelector:
-              #     busPath: 00:* # PCI, USB bus prefix, supports matching by wildcard.
-              # # select a device with mac address matching `*:f0:ab` and `virtio` kernel driver.
-              # deviceSelector:
-              #     hardwareAddr: '*:f0:ab' # Device hardware address, supports matching by wildcard.
-              #     driver: virtio # Kernel driver, supports matching by wildcard.
-              # # select a device with bus prefix 00:*, a device with mac address matching `*:f0:ab` and `virtio` kernel driver.
-              # deviceSelector:
-              #     - busPath: 00:* # PCI, USB bus prefix, supports matching by wildcard.
-              #     - hardwareAddr: '*:f0:ab' # Device hardware address, supports matching by wildcard.
-              #       driver: virtio # Kernel driver, supports matching by wildcard.
+              # # The interface name.
+              # interface: enp0s3
 
               # # Bond specific options.
               # bond:
